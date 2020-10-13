@@ -94,6 +94,7 @@ function BufferController(config) {
 
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
+        // logger.setLogTimestampVisible(true);
         initCache = InitCache(context).getInstance();
 
         resetInitialSettings();
@@ -461,6 +462,7 @@ function BufferController(config) {
     }
 
     function onPlaybackStalled() {
+        logger.debug('BUPT stalling begin.');
         checkIfSufficientBuffer();
     }
 
@@ -545,7 +547,7 @@ function BufferController(config) {
         const isLastIdxAppended = maxAppendedIndex >= lastIndex - 1; // Handles 0 and non 0 based request index
         if (isLastIdxAppended && !isBufferingCompleted && buffer.discharge === undefined) {
             isBufferingCompleted = true;
-            logger.debug('checkIfBufferingCompleted trigger BUFFERING_COMPLETED for ' + type);
+            logger.debug('BUPT checkIfBufferingCompleted trigger BUFFERING_COMPLETED for ' + type);
             triggerEvent(Events.BUFFERING_COMPLETED);
         }
     }

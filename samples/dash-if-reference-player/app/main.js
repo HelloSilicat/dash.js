@@ -34,9 +34,12 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
 });
 
 app.controller('DashController', function ($scope, sources, contributors, dashifTestVectors) {
+    //$scope.selectedItem = {
+    //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+    //};
     $scope.selectedItem = {
-        url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
-    };
+      url: 'http://www.testvideo.com/stream.mpd'
+    }
 
     sources.query(function (data) {
         $scope.availableStreams = data.items;

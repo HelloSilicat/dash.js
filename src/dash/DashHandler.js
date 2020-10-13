@@ -69,6 +69,7 @@ function DashHandler(config) {
 
     function setup() {
         logger = debug.getLogger(instance);
+        // logger.setLogTimestampVisible(true);
         resetInitialSettings();
 
         segmentsController = SegmentsController(context).create(config);
@@ -316,7 +317,9 @@ function DashHandler(config) {
 
         let indexToRequest = segmentIndex + 1;
 
-        logger.debug('Getting the next request at index: ' + indexToRequest);
+        // if (getType == 'video') {
+        logger.debug('BUPT Getting the next request at index: ' + indexToRequest);
+        // }
         // check that there is a segment in this index
         const segment = segmentsController.getSegmentByIndex(representation, indexToRequest, lastSegment ? lastSegment.mediaStartTime : -1);
         if (!segment && isEndlessMedia(representation) && !dynamicStreamCompleted) {

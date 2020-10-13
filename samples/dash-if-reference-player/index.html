@@ -36,63 +36,20 @@
 </head>
 <body ng-controller="DashController" >
 
-    <!-- Mobile Stream Menu-->
-    <div class="modal fade" id="streamModal">
-        <div class="modal-dialog">
-            <div class="list-group modal-list">
-              <ul>
-                  <li ng-repeat="item in availableStreams" ng-class="{'sub':item.submenu}">
-                    <span ng-show="!item.submenu" ng-click="setStream(item)">{{item.name}}</span>
-                    <span ng-show="item.submenu">{{item.name}}</span>
-                    <ul ng-show="item.submenu">
-                        <li ng-repeat="subitem in item.submenu">
-                            <span ng-click="setStream(subitem)" ng-if="subitem.url"
-                                  data-dismiss="modal">{{subitem.name}}</span>
-                            <span ng-if="!subitem.url">{{subitem.name}}</span>
-                            <ul ng-if="subitem.submenu">
-                                <li ng-repeat="subsubitem in subitem.submenu">
-                                    <span ng-click="setStream(subsubitem)"
-                                        data-dismiss="modal">{{subsubitem.name}}</span>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                  </li>
-              </ul>
-            </div>
-        </div>
-    </div>
 
 
     <!-- TITLE BAR -->
     <div class="container">
-        <div class="row title-header">
-
-            <div class="branding">
-              <a href="http://dashif.org/" target="_blank"><img class="image" src="app/img/if.png"/></a>
-              <span id="big-title">Reference Client</span>
-                <span ng-bind="version"></span>
-                <span id="commit-info"><!-- commit-info --></span>
-            </div>
-
-            <!-- Using iframe to solve pre-flight request issue from GIT-->
-            <div class="top-buttons">
-                <iframe id="star-button"
-                        src="//ghbtns.com/github-btn.html?user=Dash-Industry-Forum&repo=dash.js&type=watch&count=true&size=large"
-                        height="30" width="150">
-                </iframe>
-                <iframe id="fork-button"
-                        src="//ghbtns.com/github-btn.html?user=Dash-Industry-Forum&repo=dash.js&type=fork&count=true&size=large"
-                        height="30" width="150" >
-                </iframe>
-            </div>
-        </div>
+        <h1>Dash Player Testbed</h1>
 
         <div class="row">
             <div class="input-group">
                 <div id="desktop-streams" class="input-group-btn">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <!-- <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         Stream <span class="caret"></span>
+                    </button> -->
+                    <button type="button" class="btn btn-primary dropdown-toggle">
+                        MPD</span>
                     </button>
                     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
                         <li class="dropdown-submenu" ng-if="item.submenu" ng-repeat="item in availableStreams" ng-mouseover="onStreamItemHover(item)">
@@ -123,7 +80,7 @@
                 <input type="text" class="form-control" ng-model="selectedItem.url">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="toggleOptionsGutter(!optionsGutter)" ng-cloak>{{getOptionsButtonLabel()}}</button>
-                    <button class="btn btn-default" type="button" ng-click="doStop()">Stop</button>
+                    <!-- <button class="btn btn-default" type="button" ng-click="doStop()">Stop</button> -->
                     <button class="btn btn-primary" type="button" ng-click="doLoad()">Load</button>
                 </span>
             </div>
@@ -539,7 +496,7 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="footer-area" ng-cloak>
+    <!-- <div class="footer-area" ng-cloak>
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -551,6 +508,6 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </body>
 </html>

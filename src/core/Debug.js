@@ -143,9 +143,11 @@ function Debug(config) {
         let message = '';
         let logTime = null;
 
-        if (showLogTimestamp) {
+        // if (showLogTimestamp) {
+        if (true) {
             logTime = new Date().getTime();
-            message += '[' + (logTime - startTime) + ']';
+            // message += '[' + (logTime - startTime) + ']';
+            message += '[' + (logTime) + ']';
         }
 
         if (showCalleeName && _this && _this.getClassName) {
@@ -167,7 +169,6 @@ function Debug(config) {
         if (logFn[level] && settings.get().debug.logLevel >= level) {
             logFn[level](message);
         }
-
         // send log event regardless of log level
         eventBus.trigger(Events.LOG, {message: message, level: level});
     }
