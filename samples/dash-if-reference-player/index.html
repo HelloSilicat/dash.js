@@ -345,7 +345,7 @@
                           </a>
                       </li>
                       <li><a href="#audioStatsTab" role="tab" data-toggle="tab">
-                          Audio
+                          Extra
                           </a>
                       </li>
                     </ul>
@@ -406,51 +406,9 @@
                       </div>
                       <div class="tab-pane fade" id="audioStatsTab">
                         <div class="panel-body panel-stats">
-                            <!-- AUDIO STATS ITEMS-->
-                            <div class="text-success" >
-                                <input id="audioBufferLengthCB" type="checkbox" ng-model="chartState.audio.buffer.selected" ng-change="enableChartByName('buffer', 'audio')" >
-                                <label class="text-primary" for="audioBufferLengthCB" data-toggle="tooltip" data-placement="top"
-                                  title="The length of the forward buffer, in seconds">Buffer Length :</label> {{audioBufferLength}}
-                            </div>
                             <div class="text-success">
-                                <input id="audioBitrateCB" type="checkbox" ng-model="chartState.audio.bitrate.selected" ng-change="enableChartByName('bitrate', 'audio')" >
-                                <label class="text-primary" for="audioBitrateCB" data-toggle="tooltip" data-placement="top"
-                                  title="The bitrate of the representation being downloaded" >Bitrate Downloading :</label> {{audioBitrate}} kbps
-                            </div>
-                            <div class="text-success">
-                                <input id="audioPendingIndexCB" type="checkbox" ng-model="chartState.audio.pendingIndex.selected" ng-change="enableChartByName('pendingIndex', 'audio')" >
-                                <label class="text-primary" for="audioPendingIndexCB" data-toggle="tooltip" data-placement="top"
-                                  title="The representation index being downloaded and appended to the buffer">Index Downloading :</label> {{audioPendingIndex}}
-                            </div>
-                            <div class="text-success">
-                                <input id="audioIndexCB" type="checkbox" ng-model="chartState.audio.index.selected" ng-change="enableChartByName('index', 'audio')" >
-                                <label class="text-primary" for="audioIndexCB" data-toggle="tooltip" data-placement="top"
-                                  title="The representation index being rendered.">Current Index / Max Index :</label> {{audioIndex}} / {{audioMaxIndex}}
-                            </div>
-                            <div class="text-success">
-                                <input id="audioDroppedFramesCB" type="checkbox" ng-model="chartState.audio.droppedFPS.selected" ng-change="enableChartByName('droppedFPS', 'audio')" >
-                                <label class="text-primary" for="audioDroppedFramesCB" data-toggle="tooltip" data-placement="top"
-                                  title="The absolute count of frames dropped by the rendering pipeline since play commenced">Dropped Frames :</label> {{audioDroppedFrames}}
-                            </div>
-                            <div class="text-success">
-                                <input id="audioLatencyCB" type="checkbox" ng-model="chartState.audio.latency.selected" ng-change="enableChartByName('latency', 'audio')" >
-                                <label class="text-primary" for="audioLatencyCB" data-toggle="tooltip" data-placement="top"
-                                  title="The minimum, average and maximum latency over the last 4 requested segments. Latency is the time in seconds from request of segment to receipt of first byte">Latency (min|avg|max) :</label> {{audioLatency}}
-                            </div>
-                            <div class="text-success">
-                                <input id="audioDownloadCB" type="checkbox" ng-model="chartState.audio.download.selected" ng-change="enableChartByName('download', 'audio')" >
-                                <label class="text-primary" for="audioDownloadCB" data-toggle="tooltip" data-placement="top"
-                                  title="The minimum, average and maximum download time for the last 4 requested segments. Download time is the time in seconds from first byte being received to the last byte">Download (min|avg|max) :</label> {{audioDownload}}
-                            </div>
-                            <div class="text-success">
-                                <input id="audioRatioCB" type="checkbox" ng-model="chartState.audio.ratio.selected" ng-change="enableChartByName('ratio', 'audio')" >
-                                <label class="text-primary" for="audioRatioCB" data-toggle="tooltip" data-placement="top"
-                                  title="The minimum, average and maximum ratio of the segment playback time to total download time over the last 4 segments">Ratio (min|avg|max) :</label> {{audioRatio}}
-                            </div>
-                            <div class="text-success">
-                                <input id="liveLatencyCB" type="checkbox" ng-model="chartState.audio.liveLatency.selected" ng-change="enableChartByName('liveLatency', 'audio')" >
-                                <label class="text-primary" for="liveLatencyCB" data-toggle="tooltip" data-placement="top"
-                                  title="Number of seconds of difference between the real live and the playing live">Live Latency:</label> {{audioLiveLatency}}
+                                <label class="text-primary" for="videoRatioCB" data-toggle="tooltip" data-placement="top"
+                                  title="The minimum, average and maximum ratio of the segment playback time to total download time over the last 4 segments">SegmentDetails (request|response|finish) :</label><br/> {{SegmentDetails}}
                             </div>
                         </div>
                       </div>

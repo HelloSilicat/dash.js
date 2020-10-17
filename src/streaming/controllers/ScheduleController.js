@@ -287,6 +287,9 @@ function ScheduleController(config) {
     }
 
     function processMediaRequest(request) {
+        if (getType() == 'video') {
+            logger.debug('BUPT1 begin: ' + new Date().getTime());
+        }
         if (request) {
             logger.debug('Next fragment request url is ' + request.url);
             fragmentModel.executeRequest(request);
@@ -296,6 +299,9 @@ function ScheduleController(config) {
             }
             setFragmentProcessState(false);
             startScheduleTimer(settings.get().streaming.lowLatencyEnabled ? 100 : 500);
+        }
+        if (getType() == 'video') {
+            logger.debug('BUPT1 end: ' + new Date().getTime());
         }
     }
 

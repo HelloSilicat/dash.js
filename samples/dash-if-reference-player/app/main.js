@@ -641,6 +641,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         $scope.player.setTextDefaultEnabled($scope.initialSettings.textEnabled);
         $scope.player.enableForcedTextStreaming($scope.initialSettings.forceTextStreaming);
         $scope.controlbar.enable();
+        $scope['SegmentDetails'] = "";
     };
 
     $scope.doStop = function () {
@@ -879,6 +880,15 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
 
             var httpMetrics = calculateHTTPMetrics(type, dashMetrics.getHttpRequests(type));
             if (httpMetrics) {
+                // BUPT 
+                let requests = dashMetrics.getHttpRequests(type),
+                    lastRequest = null,
+                    currentRequest = null;
+                let i = requests.length - 1;
+                lastRequest = requests[i];
+                if (type == 'video') {
+                  $scope['SegmentDetails'] += (i+1) + "," + lastRequest.trequest.getTime() + ',' + lastRequest.tresponse.getTime() + ',' + lastRequest._tfinish.getTime() + ' \\n ';
+                }
                 $scope[type + 'Download'] = httpMetrics.download[type].low.toFixed(2) + ' | ' + httpMetrics.download[type].average.toFixed(2) + ' | ' + httpMetrics.download[type].high.toFixed(2);
                 $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
                 $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);
