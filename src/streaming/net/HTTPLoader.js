@@ -28,6 +28,7 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 import XHRLoader from './XHRLoader';
 import FetchLoader from './FetchLoader';
 import {HTTPRequest} from '../vo/metrics/HTTPRequest';
@@ -43,7 +44,6 @@ import Utils from '../../core/Utils';
  * @param {Object} cfg - dependancies from parent
  */
 function HTTPLoader(cfg) {
-
     cfg = cfg || {};
 
     const context = this.context;
@@ -98,6 +98,8 @@ function HTTPLoader(cfg) {
 
             request.requestStartDate = requestStartTime;
             request.requestEndDate = new Date();
+            let duration = request.requestEndDate.getTime() - request.requestStartDate.getTime();
+            console.log('[' + new Date().getTime() + '][HTTPLoader]' + 'BUPT request begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration);
             request.firstByteDate = request.firstByteDate || requestStartTime;
 
             if (!request.checkExistenceOnly) {

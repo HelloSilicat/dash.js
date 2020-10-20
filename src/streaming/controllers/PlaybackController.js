@@ -473,14 +473,14 @@ function PlaybackController() {
     }
 
     function onPlaybackWaiting() {
-        logger.info('Native video element event: waiting');
+        logger.info('BUPT Native video element event: waiting');
         eventBus.trigger(Events.PLAYBACK_WAITING, {
             playingTime: getTime()
         });
     }
 
     function onPlaybackPlaying() {
-        logger.info('Native video element event: playing');
+        logger.info('BUPT Native video element event: playing');
         eventBus.trigger(Events.PLAYBACK_PLAYING, {
             playingTime: getTime()
         });

@@ -1,3 +1,8 @@
+# Dev
+```shell
+grunt && bash update.sh
+```
+
 # Change
 
 - Remove something useless to be simplified

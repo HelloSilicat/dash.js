@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://www.testvideo.com/stream.mpd'
+      url: 'http://121.37.135.158:9991/Micro/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -886,9 +886,9 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                     currentRequest = null;
                 let i = requests.length - 1;
                 lastRequest = requests[i];
-                if (type == 'video') {
-                  $scope['SegmentDetails'] += (i+1) + "," + lastRequest.trequest.getTime() + ',' + lastRequest.tresponse.getTime() + ',' + lastRequest._tfinish.getTime() + ' \\n ';
-                }
+                // if (type == 'video') {
+                //   $scope['SegmentDetails'] += (i+1) + "," + lastRequest.trequest.getTime() + ',' + lastRequest.tresponse.getTime() + ',' + lastRequest._tfinish.getTime() + ' \\n ';
+                // }
                 $scope[type + 'Download'] = httpMetrics.download[type].low.toFixed(2) + ' | ' + httpMetrics.download[type].average.toFixed(2) + ' | ' + httpMetrics.download[type].high.toFixed(2);
                 $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
                 $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);
