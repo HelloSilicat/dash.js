@@ -99,7 +99,10 @@ function HTTPLoader(cfg) {
             request.requestStartDate = requestStartTime;
             request.requestEndDate = new Date();
             let duration = request.requestEndDate.getTime() - request.requestStartDate.getTime();
-            console.log('[' + new Date().getTime() + '][HTTPLoader]' + 'BUPT request begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration);
+            if (request.duration) {
+                console.log('[' + new Date().getTime() + '][HTTPLoader]' + 'BUPT request begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration + ' video duration:' + request.duration);
+                console.log(request);
+            }
             request.firstByteDate = request.firstByteDate || requestStartTime;
 
             if (!request.checkExistenceOnly) {

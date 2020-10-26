@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://121.37.135.158:9991/Micro/output/stream.mpd'
+      url: 'http://124.70.79.228:9991/Micro/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -178,7 +178,9 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     };
     $scope.mediaSettingsCacheEnabled = true;
     $scope.metricsTimer = null;
-    $scope.updateMetricsInterval = 1000;
+    $scope.updateMetricsInterval = 100;
+    $scope.updateCount = 0;
+    $scope.bufferLevelList = "";
     $scope.drmKeySystems = ['com.widevine.alpha', 'com.microsoft.playready'];
     $scope.drmKeySystem = '';
     $scope.drmLicenseURL = '';
@@ -864,6 +866,15 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             var bufferLevel = dashMetrics.getCurrentBufferLevel(type, true);
             var index = $scope.player.getQualityFor(type);
 
+            if (type == 'video') {
+                $scope.bufferLevelList += bufferLevel + ",";
+                $scope.updateCount += 1;
+                if ($scope.updateCount % 10 != 0) {
+                    // console.log("BUPT DEBUG" + $scope.updateCount);
+                    return ;
+                }
+            }
+
             var bitrate = repSwitch ? Math.round(dashAdapter.getBandwidthForRepresentation(repSwitch.to, periodIdx) / 1000) : NaN;
             var droppedFramesMetrics = dashMetrics.getCurrentDroppedFrames();
             var droppedFPS = droppedFramesMetrics ? droppedFramesMetrics.droppedFrames : 0;
@@ -886,9 +897,11 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                     currentRequest = null;
                 let i = requests.length - 1;
                 lastRequest = requests[i];
-                // if (type == 'video') {
-                //   $scope['SegmentDetails'] += (i+1) + "," + lastRequest.trequest.getTime() + ',' + lastRequest.tresponse.getTime() + ',' + lastRequest._tfinish.getTime() + ' \\n ';
-                // }
+                if (type == 'video') {
+                    console.log('[' + new Date().getTime() + '][Main]' + 'BUPT1 buffer length list: ' + $scope.updateCount + " " + $scope.bufferLevelList);
+                    $scope.bufferLevelList = "";
+                    $scope.updateCount = 0;
+                }
                 $scope[type + 'Download'] = httpMetrics.download[type].low.toFixed(2) + ' | ' + httpMetrics.download[type].average.toFixed(2) + ' | ' + httpMetrics.download[type].high.toFixed(2);
                 $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
                 $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);

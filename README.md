@@ -8,12 +8,8 @@ grunt && bash update.sh
 - Remove something useless to be simplified
 - Support absolute debug timestamp
 - Add debug info about stalling being/end
-
+- Add segment download begin&end timestamp 
+- Add buffer length log(10 len list per second)
 
 # TODO
-
-- Support some indicators display
-  - buffer times
-  - throughput
-- Add one more panel to show buffer/segment details
-- Support debug log downloading.
+- Add segment size in logger.
