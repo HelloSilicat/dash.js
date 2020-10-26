@@ -867,7 +867,8 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             var index = $scope.player.getQualityFor(type);
 
             if (type == 'video') {
-                $scope.bufferLevelList += bufferLevel + ",";
+                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ')';
+                $scope.bufferLevelList += ss + ",";
                 $scope.updateCount += 1;
                 if ($scope.updateCount % 10 != 0) {
                     // console.log("BUPT DEBUG" + $scope.updateCount);
