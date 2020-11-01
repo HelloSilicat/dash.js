@@ -100,8 +100,7 @@ function HTTPLoader(cfg) {
             request.requestEndDate = new Date();
             let duration = request.requestEndDate.getTime() - request.requestStartDate.getTime();
             if (request.duration) {
-                console.log('[' + new Date().getTime() + '][HTTPLoader]' + 'BUPT request begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration + ' video duration:' + request.duration);
-                console.log(request);
+                console.log('[' + new Date().getTime() + '][HTTPLoader1]' + 'BUPT request ' + request.index + ' begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration + ' video duration:' + request.duration + ' size: ' + request.bytesTotal / 1000 + ' KB');
             }
             request.firstByteDate = request.firstByteDate || requestStartTime;
 

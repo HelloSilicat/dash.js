@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://124.70.79.228:9991/Micro/output/stream.mpd'
+      url: 'http://124.70.72.188:9991/Micro/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -384,8 +384,8 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         $scope.chartCount = 0;
         $scope.metricsTimer = setInterval(function () {
             updateMetrics('video');
-            updateMetrics('audio');
-            $scope.chartCount++;
+            // updateMetrics('audio');
+            // $scope.chartCount++;
         }, $scope.updateMetricsInterval);
     }, $scope);
 
@@ -799,9 +799,12 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     };
 
     $scope.plotPoint = function (name, type, value, time) {
+        console.log("FK");
         if ($scope.chartEnabled) {
+            console.log("KF");
             var specificChart = $scope.chartState[type];
             if (specificChart) {
+                console.log("FF");
                 var data = specificChart[name].data;
                 data.push([time, value]);
                 if (data.length > $scope.maxPointsToChart) {
@@ -856,7 +859,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     function updateMetrics(type) {
         var dashMetrics = $scope.player.getDashMetrics();
         var dashAdapter = $scope.player.getDashAdapter();
-
         if (dashMetrics && $scope.streamInfo) {
             var period = dashAdapter.getPeriodById($scope.streamInfo.id);
             var periodIdx = period ? period.index : $scope.streamInfo.index;
@@ -866,16 +868,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             var bufferLevel = dashMetrics.getCurrentBufferLevel(type, true);
             var index = $scope.player.getQualityFor(type);
 
-            if (type == 'video') {
-                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ')';
-                $scope.bufferLevelList += ss + ",";
-                $scope.updateCount += 1;
-                if ($scope.updateCount % 10 != 0) {
-                    // console.log("BUPT DEBUG" + $scope.updateCount);
-                    return ;
-                }
-            }
-
             var bitrate = repSwitch ? Math.round(dashAdapter.getBandwidthForRepresentation(repSwitch.to, periodIdx) / 1000) : NaN;
             var droppedFramesMetrics = dashMetrics.getCurrentDroppedFrames();
             var droppedFPS = droppedFramesMetrics ? droppedFramesMetrics.droppedFrames : 0;
@@ -883,7 +875,16 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             if ($scope.isDynamic) {
                 liveLatency = $scope.player.getCurrentLiveLatency();
             }
-
+            if (type == 'video') {
+                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ',' + bitrate + ')';
+                $scope.bufferLevelList += ss + ",";
+                $scope.updateCount += 1;
+                if ($scope.updateCount % 10 != 0) {
+                    // console.log("BUPT DEBUG" + $scope.updateCount);
+                    return ;
+                }
+            }
+            $scope.chartCount++;
             $scope[type + 'BufferLength'] = bufferLevel;
             $scope[type + 'MaxIndex'] = maxIndex;
             $scope[type + 'Bitrate'] = bitrate;
@@ -899,7 +900,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                 let i = requests.length - 1;
                 lastRequest = requests[i];
                 if (type == 'video') {
-                    console.log('[' + new Date().getTime() + '][Main]' + 'BUPT1 buffer length list: ' + $scope.updateCount + " " + $scope.bufferLevelList);
+                    console.log('[' + new Date().getTime() + '][Main]' + 'BUPT buffer length list: ' + $scope.updateCount + " " + $scope.bufferLevelList);
                     $scope.bufferLevelList = "";
                     $scope.updateCount = 0;
                 }
@@ -907,6 +908,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                 $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
                 $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);
             }
+            
 
             if ($scope.chartCount % 2 === 0) {
                 var time = getTimeForPlot();
