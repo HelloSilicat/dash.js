@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://124.70.72.188:9991/Micro/output/stream.mpd'
+      url: 'http://117.78.8.242:9991/MicroNew/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -799,12 +799,9 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     };
 
     $scope.plotPoint = function (name, type, value, time) {
-        console.log("FK");
         if ($scope.chartEnabled) {
-            console.log("KF");
             var specificChart = $scope.chartState[type];
             if (specificChart) {
-                console.log("FF");
                 var data = specificChart[name].data;
                 data.push([time, value]);
                 if (data.length > $scope.maxPointsToChart) {
