@@ -457,13 +457,14 @@ function StreamProcessor(config) {
                 if (!e.replacement) {
                     if (!isNaN(request.startTime + request.duration)) {
                         bufferingTime = request.startTime + request.duration;
+                        console.log('BUPTDEBUG0.1 ' + request.startTime + ' ' + request.duration);
                     }
                     request.delayLoadingTime = new Date().getTime() + scheduleController.getTimeToLoadDelay();
                     scheduleController.setTimeToLoadDelay(0);
                 }
             }
         }
-
+        console.log(request);
         scheduleController.processMediaRequest(request);
     }
 
@@ -509,11 +510,12 @@ function StreamProcessor(config) {
                     keepIdx: !useTime
                 });
             bufferPruned = false;
-
+            console.log(request.url);
             // Then, check if this request was downloaded or not
             while (request && request.action !== FragmentRequest.ACTION_COMPLETE && fragmentModel.isFragmentLoaded(request)) {
                 // loop until we found not loaded fragment, or no fragment
                 request = getFragmentRequest(representationInfo);
+                console.log(request.url);
             }
         }
 
@@ -711,7 +713,6 @@ function StreamProcessor(config) {
 
     function getFragmentRequest(representationInfo, time, options) {
         let fragRequest = null;
-
         if (indexHandler) {
             const representation = representationController && representationInfo ? representationController.getRepresentationForQuality(representationInfo.quality) : null;
 

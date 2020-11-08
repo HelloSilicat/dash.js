@@ -228,6 +228,7 @@ function TimelineConverter() {
 
     function calcPeriodRelativeTimeFromMpdRelativeTime(representation, mpdRelativeTime) {
         const periodStartTime = representation.adaptation.period.start;
+        // console.log('BUPTDEBUGTIME ' + periodStartTime + '-' + mpdRelativeTime);
         return mpdRelativeTime - periodStartTime;
     }
 

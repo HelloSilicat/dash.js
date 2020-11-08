@@ -74,6 +74,7 @@ function SegmentBaseGetter(config) {
     }
 
     function getSegmentByTime(representation, requestedTime) {
+        console.log('BUPTDEBUGTEST');
         checkConfig();
 
         const index = getIndexByTime(representation, requestedTime);
@@ -97,12 +98,15 @@ function SegmentBaseGetter(config) {
             i;
 
         if (segments && ln > 0) {
+            console.log('BUPTDEBUGD ' + ln);
             for (i = 0; i < ln; i++) {
                 frag = segments[i];
                 ft = frag.presentationStartTime;
                 fd = frag.duration;
 
+
                 epsilon = fd / 2;
+                console.log('BUPTDEBUGD ' + ft + ' ' + fd + ' ' + epsilon);
                 if ((time + epsilon) >= ft &&
                     (time - epsilon) < (ft + fd)) {
                     idx = frag.availabilityIdx;

@@ -462,7 +462,6 @@ function BufferController(config) {
     }
 
     function onPlaybackStalled() {
-        logger.debug('BUPT stalling begin.');
         checkIfSufficientBuffer();
     }
 
@@ -487,6 +486,7 @@ function BufferController(config) {
             for (i = 0, len = ranges.length; i < len; i++) {
                 start = ranges.start(i);
                 end = ranges.end(i);
+                console.log(i + ' BUPTDEBUGS ' + start + ' ' + end + ' ' + time);
                 if (firstStart === null) {
                     gap = Math.abs(start - time);
                     if (time >= start && time < end) {
@@ -498,11 +498,13 @@ function BufferController(config) {
                         firstStart = start;
                         lastEnd = end;
                     }
+                    console.log('BUPTDEBUGS 1 ' + gap + ' ' + firstStart + ' ' + lastEnd);
                 } else {
                     gap = start - lastEnd;
                     if (gap <= toler) {
                         // the discontinuity is smaller than the tolerance, combine the ranges
                         lastEnd = end;
+                        console.log('BUPTDEBUGS 2 ' + gap + ' ' + firstStart + ' ' + lastEnd);
                     } else {
                         break;
                     }
@@ -523,9 +525,9 @@ function BufferController(config) {
     function getBufferLength(time, tolerance) {
         let range,
             length;
-
         range = getRangeAt(time, tolerance);
-
+        logger.debug('BUPTDEBUG ' + ' ' + time + ' ' + tolerance);
+        console.log(range);
         if (range === null) {
             length = 0;
         } else {

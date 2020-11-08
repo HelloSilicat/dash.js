@@ -94,8 +94,8 @@ function TemplateSegmentsGetter(config, isDynamic) {
         }
 
         const periodTime = timelineConverter.calcPeriodRelativeTimeFromMpdRelativeTime(representation, requestedTime);
-        const index = Math.floor(periodTime / duration);
-
+        const index = Math.round(periodTime / duration);
+        // const index = Math.floor(periodTime / duration);
         return getSegmentByIndex(representation, index);
     }
 

@@ -170,9 +170,11 @@ function SourceBufferSink(mediaSource, mediaInfo, onAppendedCallback, oldBuffer)
             });
             return;
         }
+        console.log('BUPTHI!');
         appendQueue.push(chunk);
         if (!isAppendingInProgress) {
             waitForUpdateEnd(appendNextInQueue.bind(this));
+            console.log('BUPTHA!');
         }
     }
 

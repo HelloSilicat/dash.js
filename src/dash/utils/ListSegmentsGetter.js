@@ -81,6 +81,7 @@ function ListSegmentsGetter(config, isDynamic) {
     }
 
     function getSegmentByTime(representation, requestedTime) {
+        console.log('BUPTDEBUG list');
         checkConfig();
 
         if (!representation) {
