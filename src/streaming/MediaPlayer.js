@@ -1367,6 +1367,15 @@ function MediaPlayer() {
     }
 
     /**
+     * BUPT
+     * Returns current playback quality?
+     * Need to verify.
+     */
+    function getVideoWidth() {
+        return videoModel.getVideoWidth();
+    }
+
+    /**
      * Use this method to attach an HTML5 div for dash.js to render rich TTML subtitles.
      *
      * @param {HTMLDivElement} div - An unstyled div placed after the video element. It will be styled to match the video size and overlay z-order.
@@ -2249,6 +2258,7 @@ function MediaPlayer() {
         getDebug: getDebug,
         getBufferLength: getBufferLength,
         getTTMLRenderingDiv: getTTMLRenderingDiv,
+        getVideoWidth: getVideoWidth,
         getVideoElement: getVideoElement,
         getSource: getSource,
         getCurrentLiveLatency: getCurrentLiveLatency,

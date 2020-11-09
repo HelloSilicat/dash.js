@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://117.78.8.242:9991/MicroNew/output/stream.mpd'
+      url: 'http://117.78.8.242:9992/MicroSmooth/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -864,6 +864,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             var repSwitch = dashMetrics.getCurrentRepresentationSwitch(type, true);
             var bufferLevel = dashMetrics.getCurrentBufferLevel(type, true);
             var index = $scope.player.getQualityFor(type);
+            var current_width = $scope.player.getVideoWidth();
 
             var bitrate = repSwitch ? Math.round(dashAdapter.getBandwidthForRepresentation(repSwitch.to, periodIdx) / 1000) : NaN;
             var droppedFramesMetrics = dashMetrics.getCurrentDroppedFrames();
@@ -873,7 +874,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                 liveLatency = $scope.player.getCurrentLiveLatency();
             }
             if (type == 'video') {
-                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ',' + bitrate + ')';
+                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ',' + bitrate + ',' + current_width + ')';
                 $scope.bufferLevelList += ss + ",";
                 $scope.updateCount += 1;
                 if ($scope.updateCount % 10 != 0) {
