@@ -356,6 +356,7 @@ function AbrController() {
     }
 
     function changeQuality(type, oldQuality, newQuality, topQualityIdx, reason) {
+        console.log(settings.get());
         if (type  && streamProcessorDict[type]) {
             const streamInfo = streamProcessorDict[type].getStreamInfo();
             const id = streamInfo ? streamInfo.id : null;
@@ -452,9 +453,10 @@ function AbrController() {
         }
         // else ABR_STRATEGY_DYNAMIC
 
-        const stableBufferTime = mediaPlayerModel.getStableBufferTime();
+        const stableBufferTime = mediaPlayerModel.getStableBufferTime(); // 20
         const switchOnThreshold = stableBufferTime;
         const switchOffThreshold = 0.5 * stableBufferTime;
+
 
         const useBufferABR = isUsingBufferOccupancyABRDict[mediaType];
         const newUseBufferABR = bufferLevel > (useBufferABR ? switchOffThreshold : switchOnThreshold); // use hysteresis to avoid oscillating rules

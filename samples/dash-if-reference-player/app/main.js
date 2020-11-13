@@ -156,7 +156,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             ratio: {data: [], selected: false, color: '#00CCBE', label: 'Video Ratio'},
             download: {data: [], selected: false, color: '#FF6700', label: 'Video Download Rate (Mbps)'},
             latency: {data: [], selected: false, color: '#329d61', label: 'Video Latency (ms)'},
-            droppedFPS: {data: [], selected: false, color: '#65080c', label: 'Video Dropped FPS'},
+            droppedFPS: {data: [], selected: false, color: '#65080c', label: 'Video Current Width'},
             liveLatency: {data: [], selected: false, color: '#65080c', label: 'Live Latency'}
         }
     };
@@ -886,7 +886,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             $scope[type + 'BufferLength'] = bufferLevel;
             $scope[type + 'MaxIndex'] = maxIndex;
             $scope[type + 'Bitrate'] = bitrate;
-            $scope[type + 'DroppedFrames'] = droppedFPS;
+            $scope[type + 'DroppedFrames'] = current_width; //droppedFPS;
             $scope[type + 'LiveLatency'] = liveLatency;
 
             var httpMetrics = calculateHTTPMetrics(type, dashMetrics.getHttpRequests(type));
@@ -913,7 +913,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                 $scope.plotPoint('buffer', type, bufferLevel, time);
                 $scope.plotPoint('index', type, index, time);
                 $scope.plotPoint('bitrate', type, bitrate, time);
-                $scope.plotPoint('droppedFPS', type, droppedFPS, time);
+                $scope.plotPoint('droppedFPS', type, current_width, time); // droppedFPS, time);
                 $scope.plotPoint('liveLatency', type, liveLatency, time);
 
                 if (httpMetrics) {
