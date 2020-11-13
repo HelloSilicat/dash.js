@@ -156,6 +156,42 @@ function ABRRulesCollection(config) {
         const activeRules = getActiveRules(switchRequestArray);
         const maxQuality = getMinSwitchRequest(activeRules);
 
+        // For BUPT Trace
+        console.log(rulesContext);
+        if (maxQuality && maxQuality.quality) {
+            const mediaInfo = rulesContext.getMediaInfo();
+            const mediaType = rulesContext.getMediaType();
+            const scheduleController = rulesContext.getScheduleController();
+            const abrController = rulesContext.getAbrController();
+            const streamInfo = rulesContext.getStreamInfo();
+            const isDynamic = streamInfo && streamInfo.manifestInfo ? streamInfo.manifestInfo.isDynamic : null;
+            const throughputHistory = abrController.getThroughputHistory();
+            const latency = throughputHistory.getAverageLatency(mediaType);
+            const useBufferOccupancyABR = rulesContext.useBufferOccupancyABR();
+            const throughput = throughputHistory.getAverageThroughput(mediaType, isDynamic);
+            const safeThroughput = throughputHistory.getSafeAverageThroughput(mediaType, isDynamic);
+            const bufferLevel = -1;
+
+            if (switchRequestArray[0].hasOwnProperty('buffer_level')) {
+                bufferLevel = switchRequestArray[0].reason.buffer_level;
+            } else {
+                bufferLevel = switchRequestArray[1].reason.buffer_level;
+            }
+
+            var decision_result = '[' + new Date().getTime() + '][ABRRulesCollection]BUPT-Trace [AbrDetail]decision:';
+            for (var i = 0; i < switchRequestArray.length; ++i) {
+                decision_result += '[[' + JSON.stringify(switchRequestArray[i]) + ']]';
+            }
+            decision_result += ' context:';
+            decision_result += '[[result=' + maxQuality.quality + ']]';
+            decision_result += '[[throughput=' + throughput + '/' + safeThroughput + ']]';
+            decision_result += '[[bufferLevel=' + bufferLevel + ']]';
+            decision_result += '[[latency=' + latency + ']]';
+            
+            console.log(decision_result);
+        }
+
+
         return maxQuality || SwitchRequest(context).create();
     }
 

@@ -85,7 +85,7 @@ function ThroughputRule(config) {
                 switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, throughput, latency);
                 scheduleController.setTimeToLoadDelay(0);
                 logger.debug('[' + mediaType + '] requesting switch to index: ', switchRequest.quality, 'Average throughput', Math.round(throughput), 'kbps');
-                switchRequest.reason = {throughput: throughput, latency: latency};
+                switchRequest.reason = {throughput: throughput, latency: latency, buffer_level: dashMetrics.getCurrentBufferLevel(mediaType)};
             }
         }
 

@@ -253,8 +253,8 @@ function ScheduleController(config) {
             // Only replace on track switch when NEVER_REPLACE
             const trackChanged = !mediaController.isCurrentTrack(request.mediaInfo) && mediaController.getSwitchMode(request.mediaInfo.type) === MediaController.TRACK_SWITCH_MODE_NEVER_REPLACE;
             const qualityChanged = request.quality < currentRepresentationInfo.quality;
-
             if (fastSwitchModeEnabled && (trackChanged || qualityChanged) && bufferLevel >= safeBufferLevel && abandonmentState !== MetricsConstants.ABANDON_LOAD) {
+                logger.debug('BUPT-Trace [FastSwitch]:' + request.url + ' buffer_level=' + bufferLevel + ' quality(request/current)=' + request.quality + '/' + currentRepresentationInfo.quality);
                 replaceRequest(request);
                 isReplacementRequest = true;
                 logger.debug('Reloading outdated fragment at index: ', request.index);
@@ -363,6 +363,7 @@ function ScheduleController(config) {
         }
 
         if (e.error && e.request.serviceLocation && !isStopped) {
+            logger.debug('BUPT-Trace [Fragment Error]:' + e.request.url);
             replaceRequest(e.request);
             setFragmentProcessState(false);
             startScheduleTimer(0);
@@ -410,6 +411,7 @@ function ScheduleController(config) {
         logger.info('onFragmentLoadingAbandoned request: ' + e.request.url + ' has been aborted');
         if (!playbackController.isSeeking() && !switchTrack) {
             logger.info('onFragmentLoadingAbandoned request: ' + e.request.url + ' has to be downloaded again, origin is not seeking process or switch track call');
+            logger.debug('BUPT-Trace [FragmentLoadingAbandoned]:' + e.request.url);
             replaceRequest(e.request);
         }
         setFragmentProcessState(false);

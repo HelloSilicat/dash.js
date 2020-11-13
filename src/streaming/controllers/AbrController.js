@@ -356,13 +356,12 @@ function AbrController() {
     }
 
     function changeQuality(type, oldQuality, newQuality, topQualityIdx, reason) {
-        console.log(settings.get());
         if (type  && streamProcessorDict[type]) {
             const streamInfo = streamProcessorDict[type].getStreamInfo();
             const id = streamInfo ? streamInfo.id : null;
             if (settings.get().debug.logLevel === Debug.LOG_LEVEL_DEBUG) {
                 const bufferLevel = dashMetrics.getCurrentBufferLevel(type);
-                logger.info('[' + type + '] switch from ' + oldQuality + ' to ' + newQuality + '/' + topQualityIdx + ' (buffer: ' + bufferLevel + ') ' + (reason ? JSON.stringify(reason) : '.'));
+                logger.info('BUPT-Trace [AbrGeneral](' + type + ') switch from ' + oldQuality + ' to ' + newQuality + '/' + topQualityIdx + ' (buffer: ' + bufferLevel + ') ' + (reason ? JSON.stringify(reason) : '.'));
             }
             setQualityFor(type, id, newQuality);
             eventBus.trigger(Events.QUALITY_CHANGE_REQUESTED, {mediaType: type, streamInfo: streamInfo, oldQuality: oldQuality, newQuality: newQuality, reason: reason});
@@ -623,6 +622,7 @@ function AbrController() {
                 const request = fragmentModel.getRequests({state: FragmentModel.FRAGMENT_MODEL_LOADING, index: e.request.index})[0];
                 if (request) {
                     //TODO Check if we should abort or if better to finish download. check bytesLoaded/Total
+                    logger.debug('BUPT-Trace [shouldAbandoned]:' + request.url + ' oldValue:' + getQualityFor(type) + ' newValue:' + switchRequest.quality);
                     fragmentModel.abortRequests();
                     setAbandonmentStateFor(type, MetricsConstants.ABANDON_LOAD);
                     switchHistoryDict[type].reset();

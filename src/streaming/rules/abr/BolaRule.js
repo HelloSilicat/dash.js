@@ -414,7 +414,7 @@ function BolaRule(config) {
         const safeThroughput = throughputHistory.getSafeAverageThroughput(mediaType, isDynamic);
         const latency = throughputHistory.getAverageLatency(mediaType);
         let quality;
-
+        switchRequest.reason.bufferLevel = bufferLevel;
         switchRequest.reason.state = bolaState.state;
         switchRequest.reason.throughput = throughput;
         switchRequest.reason.latency = latency;
