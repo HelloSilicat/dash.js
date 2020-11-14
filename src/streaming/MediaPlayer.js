@@ -880,6 +880,7 @@ function MediaPlayer() {
                 thumbnailController.setTrackByIndex(value);
             }
         }
+        logger.debug('[' + new Date().getTime() + '][ABRRulesCollection]' + 'BUPT-Trace [MediaPlayerChange] ' + value);
         abrController.setPlaybackQuality(type, streamController.getActiveStreamInfo(), value);
     }
 

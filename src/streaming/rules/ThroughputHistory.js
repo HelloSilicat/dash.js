@@ -58,13 +58,15 @@ function ThroughputHistory(config) {
         latencyDict,
         ewmaThroughputDict,
         ewmaLatencyDict,
-        ewmaHalfLife;
+        ewmaHalfLife,
+        globalSampleSize;
 
     function setup() {
         ewmaHalfLife = {
             throughputHalfLife: { fast: EWMA_THROUGHPUT_FAST_HALF_LIFE_SECONDS, slow: EWMA_THROUGHPUT_SLOW_HALF_LIFE_SECONDS },
             latencyHalfLife:    { fast: EWMA_LATENCY_FAST_HALF_LIFE_COUNT,      slow: EWMA_LATENCY_SLOW_HALF_LIFE_COUNT }
         };
+        globalSampleSize = 0;
 
         reset();
     }
@@ -168,8 +170,12 @@ function ThroughputHistory(config) {
                 }
             }
         }
-
+        globalSampleSize = sampleSize;
         return sampleSize;
+    }
+
+    function getGlobalSampleSize() {
+        return globalSampleSize;
     }
 
     function getAverage(isThroughput, mediaType, isDynamic) {
@@ -249,7 +255,8 @@ function ThroughputHistory(config) {
         getAverageThroughput: getAverageThroughput,
         getSafeAverageThroughput: getSafeAverageThroughput,
         getAverageLatency: getAverageLatency,
-        reset: reset
+        reset: reset,
+        getGlobalSampleSize: getGlobalSampleSize
     };
 
     setup();

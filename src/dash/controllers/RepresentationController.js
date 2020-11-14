@@ -266,6 +266,7 @@ function RepresentationController(config) {
         }
 
         if (isAllRepresentationsUpdated()) {
+            console.log('[' + new Date().getTime() + '][ABRRulesCollection]' + 'BUPT-Trace [RepresentationControllerChange] ' + getQualityForRepresentation(currentVoRepresentation));
             abrController.setPlaybackQuality(getType(), streamInfo, getQualityForRepresentation(currentVoRepresentation));
             dashMetrics.updateManifestUpdateInfo({latency: currentVoRepresentation.segmentAvailabilityRange.end - playbackController.getTime()});
 

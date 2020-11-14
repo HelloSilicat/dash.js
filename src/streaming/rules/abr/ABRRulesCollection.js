@@ -157,11 +157,9 @@ function ABRRulesCollection(config) {
         const maxQuality = getMinSwitchRequest(activeRules);
 
         // For BUPT Trace
-        console.log(rulesContext);
-        if (maxQuality && maxQuality.quality) {
-            const mediaInfo = rulesContext.getMediaInfo();
+        console.log(switchRequestArray);
+        if (switchRequestArray && switchRequestArray.length == 5) {
             const mediaType = rulesContext.getMediaType();
-            const scheduleController = rulesContext.getScheduleController();
             const abrController = rulesContext.getAbrController();
             const streamInfo = rulesContext.getStreamInfo();
             const isDynamic = streamInfo && streamInfo.manifestInfo ? streamInfo.manifestInfo.isDynamic : null;
@@ -170,25 +168,37 @@ function ABRRulesCollection(config) {
             const useBufferOccupancyABR = rulesContext.useBufferOccupancyABR();
             const throughput = throughputHistory.getAverageThroughput(mediaType, isDynamic);
             const safeThroughput = throughputHistory.getSafeAverageThroughput(mediaType, isDynamic);
-            const bufferLevel = -1;
+            var bufferLevel = -1;
+            var sample_size = -1;
 
-            if (switchRequestArray[0].hasOwnProperty('buffer_level')) {
-                bufferLevel = switchRequestArray[0].reason.buffer_level;
-            } else {
-                bufferLevel = switchRequestArray[1].reason.buffer_level;
+            if (switchRequestArray[0] && switchRequestArray[0].hasOwnProperty('reason') && switchRequestArray[0].reason && switchRequestArray[0].reason.hasOwnProperty('bufferLevel')) {
+                bufferLevel = switchRequestArray[0].reason.bufferLevel;
+            } else if (switchRequestArray[1] && switchRequestArray[1].hasOwnProperty('reason') && switchRequestArray[1].reason && switchRequestArray[1].reason.hasOwnProperty('bufferLevel')) {
+                bufferLevel = switchRequestArray[1].reason.bufferLevel;
+                sample_size = switchRequestArray[1].reason.sampleSize;
             }
 
             var decision_result = '[' + new Date().getTime() + '][ABRRulesCollection]BUPT-Trace [AbrDetail]decision:';
             for (var i = 0; i < switchRequestArray.length; ++i) {
                 decision_result += '[[' + JSON.stringify(switchRequestArray[i]) + ']]';
             }
-            decision_result += ' context:';
-            decision_result += '[[result=' + maxQuality.quality + ']]';
-            decision_result += '[[throughput=' + throughput + '/' + safeThroughput + ']]';
-            decision_result += '[[bufferLevel=' + bufferLevel + ']]';
-            decision_result += '[[latency=' + latency + ']]';
-            
-            console.log(decision_result);
+            var newValue = maxQuality ? maxQuality.quality : -1;
+            var oldValue = rulesContext.getRepresentationInfo().quality;
+
+            var env = {
+                newValue: newValue,
+                oldValue: oldValue,
+                throughput: throughput,
+                safeThroughput: safeThroughput,
+                bufferLevel: bufferLevel,
+                latency: latency,
+                useBufferAbr: useBufferOccupancyABR,
+                sampleSize: sample_size
+            };
+            decision_result += ' context:[[' + JSON.stringify(env) + ']]';
+            if (newValue !== oldValue) {
+                console.log(decision_result);
+            }
         }
 
 

@@ -333,6 +333,8 @@ function AbrController() {
 
                 if (newQuality > SwitchRequest.NO_CHANGE && newQuality != oldQuality) {
                     if (abandonmentStateDict[type].state === MetricsConstants.ALLOW_LOAD || newQuality > oldQuality) {
+                        // console.log('BUPT-Trace [DEBUG1]');
+                        logger.debug('BUPT-Trace [AbrController DEBUG1] ' + oldQuality + ' ' + newQuality);
                         changeQuality(type, oldQuality, newQuality, topQualityIdx, switchRequest.reason);
                     }
                 } else if (settings.get().debug.logLevel === Debug.LOG_LEVEL_DEBUG) {
@@ -351,6 +353,7 @@ function AbrController() {
 
         const topQualityIdx = getTopQualityIndexFor(type, id);
         if (newQuality !== oldQuality && newQuality >= 0 && newQuality <= topQualityIdx) {
+            logger.debug('BUPT-Trace [AbrController DEBUG2] ' + oldQuality + ' ' + newQuality);
             changeQuality(type, oldQuality, newQuality, topQualityIdx, reason);
         }
     }
@@ -361,7 +364,8 @@ function AbrController() {
             const id = streamInfo ? streamInfo.id : null;
             if (settings.get().debug.logLevel === Debug.LOG_LEVEL_DEBUG) {
                 const bufferLevel = dashMetrics.getCurrentBufferLevel(type);
-                logger.info('BUPT-Trace [AbrGeneral](' + type + ') switch from ' + oldQuality + ' to ' + newQuality + '/' + topQualityIdx + ' (buffer: ' + bufferLevel + ') ' + (reason ? JSON.stringify(reason) : '.'));
+                const safeThroughput = throughputHistory.getSafeAverageThroughput(type);
+                logger.info('BUPT-Trace [AbrGeneral](' + type + ') switch from ' + oldQuality + ' to ' + newQuality + '/' + topQualityIdx + ' (buffer: ' + bufferLevel + ') ' + ' (safeThroughput: ' + safeThroughput + ') ' + (reason ? JSON.stringify(reason) : '.'));
             }
             setQualityFor(type, id, newQuality);
             eventBus.trigger(Events.QUALITY_CHANGE_REQUESTED, {mediaType: type, streamInfo: streamInfo, oldQuality: oldQuality, newQuality: newQuality, reason: reason});
