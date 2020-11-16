@@ -98,12 +98,13 @@ function HTTPLoader(cfg) {
 
             request.requestStartDate = requestStartTime;
             request.requestEndDate = new Date();
-            let duration = request.requestEndDate.getTime() - request.requestStartDate.getTime();
-            if (request.duration) {
-                console.log('[' + new Date().getTime() + '][HTTPLoader1]' + 'BUPT request ' + request.index + ' begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration + ' video duration:' + request.duration + ' size: ' + request.bytesTotal / 1000 + ' KB' + ' url: <' + request.url + '>');
-            }
             request.firstByteDate = request.firstByteDate || requestStartTime;
 
+            let duration = request.requestEndDate.getTime() - request.firstByteDate.getTime();
+            let bupt_latency = request.firstByteDate.getTime() - request.requestStartDate.getTime();
+            if (request.duration) {
+                console.log('[' + new Date().getTime() + '][HTTPLoader1]' + 'BUPT request ' + request.index + ' begin time: ' + request.requestStartDate.getTime() + ' end time: ' + request.requestEndDate.getTime() + ' duration(ms): ' + duration + ' video duration:' + request.duration + ' latency: ' + bupt_latency + ' size: ' + request.bytesTotal / 1000 + ' KB' + ' url: <' + request.url + '>');
+            }
             if (!request.checkExistenceOnly) {
                 dashMetrics.addHttpRequest(request, httpRequest.response ? httpRequest.response.responseURL : null,
                     httpRequest.response ? httpRequest.response.status : null,

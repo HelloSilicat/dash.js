@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://117.78.8.242:9992/MicroSmooth/output/stream.mpd'
+      url: 'http://119.3.166.184:9992/MicroSmooth/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -874,7 +874,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                 liveLatency = $scope.player.getCurrentLiveLatency();
             }
             if (type == 'video') {
-                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ',' + bitrate + ',' + current_width + ')';
+                var ss = '(' + new Date().getTime() + ',' + bufferLevel + ',' + bitrate + ',' + current_width + ',' + droppedFPS + ')';
                 $scope.bufferLevelList += ss + ",";
                 $scope.updateCount += 1;
                 if ($scope.updateCount % 10 != 0) {
