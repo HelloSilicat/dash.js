@@ -88,7 +88,6 @@ function ThroughputHistory(config) {
         const downloadTimeInMilliseconds = (httpRequest._tfinish.getTime() - httpRequest.tresponse.getTime()) || 1; //Make sure never 0 we divide by this value. Avoid infinity!
         const downloadBytes = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
 
-        console.log(httpRequest._tfinish.getTime(), httpRequest.tresponse.getTime());
         let throughputMeasureTime;
         if (settings.get().streaming.lowLatencyEnabled) {
             throughputMeasureTime = httpRequest.trace.reduce((a, b) => a + b.d, 0);

@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://119.3.166.184:9992/MicroSmooth/output/stream.mpd'
+      url: 'http://121.36.10.202:9992/MicroSmooth/output/stream.mpd'
     }
 
     sources.query(function (data) {
@@ -272,7 +272,11 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                         'autoSwitchBitrate': {
                             'video': $scope.videoAutoSwitchSelected
                         }
-                    }
+                    },
+                    'bufferToKeep': 60,
+                    'stableBufferTime': 60,
+                    'bufferTimeAtTopQuality': 60,
+                    'bufferTimeAtTopQualityLongForm': 60,
                 }
             };
             $scope.player.updateSettings(initialConfig);

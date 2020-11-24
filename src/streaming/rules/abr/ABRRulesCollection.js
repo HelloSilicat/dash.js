@@ -157,7 +157,6 @@ function ABRRulesCollection(config) {
         const maxQuality = getMinSwitchRequest(activeRules);
 
         // For BUPT Trace
-        console.log(switchRequestArray);
         if (switchRequestArray && switchRequestArray.length == 5) {
             const mediaType = rulesContext.getMediaType();
             const abrController = rulesContext.getAbrController();
