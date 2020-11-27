@@ -31,7 +31,7 @@
 import ThroughputRule from './ThroughputRule';
 import InsufficientBufferRule from './InsufficientBufferRule';
 import AbandonRequestsRule from './AbandonRequestsRule';
-import DroppedFramesRule from './DroppedFramesRule';
+// import DroppedFramesRule from './DroppedFramesRule';
 import SwitchHistoryRule from './SwitchHistoryRule';
 import BolaRule from './BolaRule';
 import FactoryMaker from '../../../core/FactoryMaker';
@@ -51,11 +51,13 @@ function ABRRulesCollection(config) {
 
     let instance,
         qualitySwitchRules,
-        abandonFragmentRules;
+        abandonFragmentRules,
+        BUPT_state;
 
     function initialize() {
         qualitySwitchRules = [];
         abandonFragmentRules = [];
+        BUPT_state = 1;
 
         if (settings.get().streaming.abr.useDefaultABRRules) {
             // Only one of BolaRule and ThroughputRule will give a switchRequest.quality !== SwitchRequest.NO_CHANGE.
@@ -80,9 +82,9 @@ function ABRRulesCollection(config) {
             qualitySwitchRules.push(
                 SwitchHistoryRule(context).create()
             );
-            qualitySwitchRules.push(
-                DroppedFramesRule(context).create()
-            );
+            // qualitySwitchRules.push(
+            //     DroppedFramesRule(context).create()
+            // );
             abandonFragmentRules.push(
                 AbandonRequestsRule(context).create({
                     dashMetrics: dashMetrics,
@@ -120,11 +122,9 @@ function ABRRulesCollection(config) {
         if (srArray.length === 0) {
             return;
         }
-
         values[SwitchRequest.PRIORITY.STRONG] = SwitchRequest.NO_CHANGE;
         values[SwitchRequest.PRIORITY.WEAK] = SwitchRequest.NO_CHANGE;
         values[SwitchRequest.PRIORITY.DEFAULT] = SwitchRequest.NO_CHANGE;
-
         for (i = 0, len = srArray.length; i < len; i += 1) {
             req = srArray[i];
             if (req.quality !== SwitchRequest.NO_CHANGE) {
@@ -154,10 +154,14 @@ function ABRRulesCollection(config) {
     function getMaxQuality(rulesContext) {
         const switchRequestArray = qualitySwitchRules.map(rule => rule.getMaxIndex(rulesContext));
         const activeRules = getActiveRules(switchRequestArray);
-        const maxQuality = getMinSwitchRequest(activeRules);
+        if (activeRules.length > 3 && activeRules[0].quality == -1 && activeRules[1].quality == -1) {
+            activeRules[2].quality = -1;
+        }
+
+        var maxQuality = getMinSwitchRequest(activeRules);
 
         // For BUPT Trace
-        if (switchRequestArray && switchRequestArray.length == 5) {
+        if (switchRequestArray && switchRequestArray.length == 4) {
             const mediaType = rulesContext.getMediaType();
             const abrController = rulesContext.getAbrController();
             const streamInfo = rulesContext.getStreamInfo();
@@ -196,7 +200,15 @@ function ABRRulesCollection(config) {
             };
             decision_result += ' context:[[' + JSON.stringify(env) + ']]';
             if (newValue !== oldValue) {
-                console.log(decision_result);
+                if (newValue > oldValue) {
+                    BUPT_state = Math.min(BUPT_state + 1, 2);
+                } else {
+                    if (BUPT_state == 2) {
+                        maxQuality = oldValue;
+                    }
+                    BUPT_state = Math.max(BUPT_state - 1, 0);
+                }
+                console.log(decision_result + ' BUPT_state: ' + BUPT_state);
             }
         }
 

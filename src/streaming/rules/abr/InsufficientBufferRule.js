@@ -39,7 +39,7 @@ import MetricsConstants from '../../constants/MetricsConstants';
 function InsufficientBufferRule(config) {
 
     config = config || {};
-    const INSUFFICIENT_BUFFER_SAFETY_FACTOR = 0.5;
+    const INSUFFICIENT_BUFFER_SAFETY_FACTOR = 1.0;//0.5;
     const SEGMENT_IGNORE_COUNT = 2;
 
     const context = this.context;
@@ -105,8 +105,9 @@ function InsufficientBufferRule(config) {
             const bufferLevel = dashMetrics.getCurrentBufferLevel(mediaType);
             const throughput = throughputHistory.getAverageThroughput(mediaType);
             const latency = throughputHistory.getAverageLatency(mediaType);
-            const bitrate = throughput * (bufferLevel / fragmentDuration) * INSUFFICIENT_BUFFER_SAFETY_FACTOR;
-
+            var bitrate = throughput * (bufferLevel / fragmentDuration) * INSUFFICIENT_BUFFER_SAFETY_FACTOR;
+            bitrate = bitrate * (0.5 + 0.3 * bufferLevel / 30.0);
+            // switchRequest.priority = 0;
             switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, bitrate, latency);
             switchRequest.reason = 'InsufficientBufferRule: being conservative to avoid immediate rebuffering';
         }

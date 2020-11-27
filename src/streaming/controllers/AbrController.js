@@ -456,7 +456,7 @@ function AbrController() {
         }
         // else ABR_STRATEGY_DYNAMIC
 
-        const stableBufferTime = mediaPlayerModel.getStableBufferTime(); // 20
+        const stableBufferTime = 20; //mediaPlayerModel.getStableBufferTime(); // 20
         const switchOnThreshold = stableBufferTime;
         const switchOffThreshold = 0.5 * stableBufferTime;
 
