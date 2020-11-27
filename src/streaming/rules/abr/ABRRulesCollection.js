@@ -31,7 +31,7 @@
 import ThroughputRule from './ThroughputRule';
 import InsufficientBufferRule from './InsufficientBufferRule';
 import AbandonRequestsRule from './AbandonRequestsRule';
-import DroppedFramesRule from './DroppedFramesRule';
+//import DroppedFramesRule from './DroppedFramesRule';
 import SwitchHistoryRule from './SwitchHistoryRule';
 import BolaRule from './BolaRule';
 import FactoryMaker from '../../../core/FactoryMaker';
@@ -80,9 +80,9 @@ function ABRRulesCollection(config) {
             qualitySwitchRules.push(
                 SwitchHistoryRule(context).create()
             );
-            qualitySwitchRules.push(
-                DroppedFramesRule(context).create()
-            );
+            // qualitySwitchRules.push(
+            //     DroppedFramesRule(context).create()
+            // );
             abandonFragmentRules.push(
                 AbandonRequestsRule(context).create({
                     dashMetrics: dashMetrics,
@@ -157,7 +157,7 @@ function ABRRulesCollection(config) {
         const maxQuality = getMinSwitchRequest(activeRules);
 
         // For BUPT Trace
-        if (switchRequestArray && switchRequestArray.length == 5) {
+        if (switchRequestArray && switchRequestArray.length == 4) {
             const mediaType = rulesContext.getMediaType();
             const abrController = rulesContext.getAbrController();
             const streamInfo = rulesContext.getStreamInfo();
