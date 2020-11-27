@@ -273,10 +273,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
                             'video': $scope.videoAutoSwitchSelected
                         }
                     },
-                    'bufferToKeep': 60,
-                    'stableBufferTime': 60,
-                    'bufferTimeAtTopQuality': 60,
-                    'bufferTimeAtTopQualityLongForm': 60,
                 }
             };
             $scope.player.updateSettings(initialConfig);
@@ -420,7 +416,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     // General Player Methods
     //
     ////////////////////////////////////////
-
+    
     $scope.onChartEnableButtonClick = function () {
         $scope.chartEnabled = !$scope.chartEnabled;
         $('#chart-wrapper').fadeTo(500, $scope.chartEnabled ? 1 : 0.3);
@@ -858,6 +854,15 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     }
 
     function updateMetrics(type) {
+    
+        $scope.player.updateSettings({
+        'streaming': {
+            'stableBufferTime': 30,
+            'bufferTimeAtTopQuality': 30,
+            'bufferTimeAtTopQualityLongForm': 30,
+        }
+        });
+   
         var dashMetrics = $scope.player.getDashMetrics();
         var dashAdapter = $scope.player.getDashAdapter();
         if (dashMetrics && $scope.streamInfo) {
