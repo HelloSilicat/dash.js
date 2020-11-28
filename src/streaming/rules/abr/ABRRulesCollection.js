@@ -32,7 +32,7 @@ import ThroughputRule from './ThroughputRule';
 import InsufficientBufferRule from './InsufficientBufferRule';
 import AbandonRequestsRule from './AbandonRequestsRule';
 //import DroppedFramesRule from './DroppedFramesRule';
-import SwitchHistoryRule from './SwitchHistoryRule';
+//import SwitchHistoryRule from './SwitchHistoryRule';
 import BolaRule from './BolaRule';
 import FactoryMaker from '../../../core/FactoryMaker';
 import SwitchRequest from '../SwitchRequest';
@@ -77,9 +77,9 @@ function ABRRulesCollection(config) {
                     dashMetrics: dashMetrics
                 })
             );
-            qualitySwitchRules.push(
-                SwitchHistoryRule(context).create()
-            );
+            //qualitySwitchRules.push(
+            //    SwitchHistoryRule(context).create()
+            //);
             // qualitySwitchRules.push(
             //     DroppedFramesRule(context).create()
             // );
