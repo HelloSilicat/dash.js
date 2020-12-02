@@ -330,7 +330,7 @@ function AbrController() {
                 }
 
                 switchHistoryDict[type].push({oldValue: oldQuality, newValue: newQuality});
-
+                logger.debug('BUPT-Trace [AbrController SwitchHistoryUpdate] ' + oldQuality + ' ' + newQuality);
                 if (newQuality > SwitchRequest.NO_CHANGE && newQuality != oldQuality) {
                     if (abandonmentStateDict[type].state === MetricsConstants.ALLOW_LOAD || newQuality > oldQuality) {
                         // console.log('BUPT-Trace [DEBUG1]');
@@ -632,7 +632,7 @@ function AbrController() {
                     switchHistoryDict[type].reset();
                     switchHistoryDict[type].push({oldValue: getQualityFor(type), newValue: switchRequest.quality, confidence: 1, reason: switchRequest.reason});
                     setPlaybackQuality(type, streamController.getActiveStreamInfo(), switchRequest.quality, switchRequest.reason);
-
+                    logger.debug('BUPT-Trace [AbrController SwitchHistoryUpdate] reset ' + getQualityFor(type) + ' ' + switchRequest.quality);
                     clearTimeout(abandonmentTimeout);
                     abandonmentTimeout = setTimeout(
                         () => {setAbandonmentStateFor(type, MetricsConstants.ALLOW_LOAD); abandonmentTimeout = null;},
