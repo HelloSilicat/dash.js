@@ -37,7 +37,7 @@ import FactoryMaker from '../../core/FactoryMaker';
 import Debug from '../../core/Debug';
 import URLUtils from '../utils/URLUtils';
 
-const HTTP_TIMEOUT_MS = 5000;
+const HTTP_TIMEOUT_MS = 2500;
 
 function TimeSyncController() {
 
