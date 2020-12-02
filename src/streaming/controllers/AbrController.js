@@ -631,8 +631,8 @@ function AbrController() {
                     setAbandonmentStateFor(type, MetricsConstants.ABANDON_LOAD);
                     switchHistoryDict[type].reset();
                     switchHistoryDict[type].push({oldValue: getQualityFor(type), newValue: switchRequest.quality, confidence: 1, reason: switchRequest.reason});
-                    setPlaybackQuality(type, streamController.getActiveStreamInfo(), switchRequest.quality, switchRequest.reason);
                     logger.debug('BUPT-Trace [AbrController SwitchHistoryUpdate] reset ' + getQualityFor(type) + ' ' + switchRequest.quality);
+                    setPlaybackQuality(type, streamController.getActiveStreamInfo(), switchRequest.quality, switchRequest.reason);
                     clearTimeout(abandonmentTimeout);
                     abandonmentTimeout = setTimeout(
                         () => {setAbandonmentStateFor(type, MetricsConstants.ALLOW_LOAD); abandonmentTimeout = null;},

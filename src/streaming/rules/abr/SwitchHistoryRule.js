@@ -28,7 +28,7 @@ function SwitchHistoryRule() {
         let noDrops = 0;
         let dropSize = 0;
         const switchRequest = SwitchRequest(context).create();
-
+        let flag = 0;
         for (let i = 0; i < switchRequests.length; i++) {
             if (switchRequests[i] !== undefined) {
                 drops += switchRequests[i].drops;
@@ -37,13 +37,16 @@ function SwitchHistoryRule() {
 
                 if (drops + noDrops >= SAMPLE_SIZE && (drops / noDrops > MAX_SWITCH)) {
                     switchRequest.quality = (i > 0 && switchRequests[i].drops > 0) ? i - 1 : i;
-                    switchRequest.reason = {index: switchRequest.quality, drops: drops, noDrops: noDrops, dropSize: dropSize};
+                    switchRequest.reason = {index: switchRequest.quality, drops: drops, noDrops: noDrops, dropSize: dropSize, switchRequests: switchRequests};
                     logger.debug('Switch history rule index: ' + switchRequest.quality + ' samples: ' + (drops + noDrops) + ' drops: ' + drops);
+                    flag = 1;
                     break;
                 }
             }
         }
-
+        if (flag === 0) {
+            switchRequest.reason = {switchRequests: switchRequests};
+        }
         return switchRequest;
     }
 

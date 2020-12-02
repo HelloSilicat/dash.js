@@ -156,7 +156,6 @@ function ScheduleController(config) {
     }
 
     function schedule() {
-        console.log(settings.get());
         if (isStopped || isFragmentProcessingInProgress ||
             (playbackController.isPaused() && !settings.get().streaming.scheduleWhilePaused) ||
             ((type === Constants.FRAGMENTED_TEXT || type === Constants.TEXT) && !textController.isTextEnabled()) ||
