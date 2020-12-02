@@ -49,6 +49,8 @@ function ABRRulesCollection(config) {
     const dashMetrics = config.dashMetrics;
     const settings = config.settings;
 
+    let BUPT_fsm_state;
+
     let instance,
         qualitySwitchRules,
         abandonFragmentRules;
@@ -56,6 +58,7 @@ function ABRRulesCollection(config) {
     function initialize() {
         qualitySwitchRules = [];
         abandonFragmentRules = [];
+        BUPT_fsm_state = 1;
 
         if (settings.get().streaming.abr.useDefaultABRRules) {
             // Only one of BolaRule and ThroughputRule will give a switchRequest.quality !== SwitchRequest.NO_CHANGE.
@@ -194,7 +197,19 @@ function ABRRulesCollection(config) {
                 useBufferAbr: useBufferOccupancyABR,
                 sampleSize: sample_size
             };
-            decision_result += ' context:[[' + JSON.stringify(env) + ']]';
+            var state_before = BUPT_fsm_state;
+            if (newValue !== -1 && oldValue !== -1) {
+                if (BUPT_fsm_state === 2 && newValue < oldValue && maxQuality) {
+                    maxQuality.quality = oldValue;
+                }
+                if (newValue > oldValue) {
+                    BUPT_fsm_state = Math.min(2, BUPT_fsm_state + (BUPT_fsm_state > 0 ? 1 : 2));
+                }
+                if (newValue < oldValue) {
+                    BUPT_fsm_state = Math.max(0, BUPT_fsm_state - 1);
+                }
+            }
+            decision_result += ' context:[[' + JSON.stringify(env) + ']] state: ' + state_before + '->' + BUPT_fsm_state;
             // if (newValue !== oldValue) {
             console.log(decision_result);
             // }
