@@ -17,8 +17,6 @@ function SwitchHistoryRule() {
     //must be < SwitchRequestHistory SWITCH_REQUEST_HISTORY_DEPTH to enable rule
     const SAMPLE_SIZE = 6;
 
-    // Last Range Sum. When First met, the range must be satisfied.
-    var last = -1;
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
     }
@@ -48,14 +46,6 @@ function SwitchHistoryRule() {
         }
         if (flag === 0) {
             switchRequest.reason = {switchRequests: switchRequests};
-        } else {
-            switchRequest.way = SwitchRequest.WAY.RANGE;
-            switchRequest.range_min = Math.max(switchRequest.quality - 1, 0);
-            switchRequest.range_max = Math.min(switchRequest.quality + 1, 4);
-            if (switchRequest.range_min + switchRequest.range_max === last) {
-                switchRequest.range_min = 0;
-            }
-            last = switchRequest.range_min + switchRequest.range_max;
         }
         return switchRequest;
     }

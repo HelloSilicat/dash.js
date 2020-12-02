@@ -116,6 +116,8 @@ function ABRRulesCollection(config) {
             req,
             newQuality,
             quality;
+        let range_min = 0;
+        let range_max = 4;
 
         if (srArray.length === 0) {
             return;
@@ -127,8 +129,13 @@ function ABRRulesCollection(config) {
 
         for (i = 0, len = srArray.length; i < len; i += 1) {
             req = srArray[i];
-            if (req.quality !== SwitchRequest.NO_CHANGE) {
-                values[req.priority] = values[req.priority] > SwitchRequest.NO_CHANGE ? Math.min(values[req.priority], req.quality) : req.quality;
+            if (req.way !== SwitchRequest.WAY.RANGE) {
+                if (req.quality !== SwitchRequest.NO_CHANGE) {
+                    values[req.priority] = values[req.priority] > SwitchRequest.NO_CHANGE ? Math.min(values[req.priority], req.quality) : req.quality;
+                }
+            } else {
+                range_min = Math.max(req.range_min, range_min);
+                range_max = Math.min(req.range_max, range_max);
             }
         }
 
@@ -147,6 +154,9 @@ function ABRRulesCollection(config) {
         if (newQuality !== SwitchRequest.NO_CHANGE) {
             quality = newQuality;
         }
+
+        quality = Math.max(quality, range_min);
+        quality = Math.min(quality, range_max);
 
         return SwitchRequest(context).create(quality);
     }

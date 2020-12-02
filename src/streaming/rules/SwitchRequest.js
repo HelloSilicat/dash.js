@@ -37,6 +37,10 @@ const PRIORITY = {
     STRONG: 1,
     WEAK: 0
 };
+const WAY = {
+    DEFAULT: 0,
+    RANGE: 1
+};
 
 function SwitchRequest(q, r, p) {
     //TODO refactor all the calls to this to use config to be like everything else.
@@ -64,7 +68,10 @@ function SwitchRequest(q, r, p) {
     instance = {
         quality: quality,
         reason: reason,
-        priority: priority
+        priority: priority,
+        way: WAY.DEFAULT,
+        range_min: 0,
+        range_max: 1
     };
 
     return instance;
@@ -74,6 +81,7 @@ SwitchRequest.__dashjs_factory_name = 'SwitchRequest';
 const factory = FactoryMaker.getClassFactory(SwitchRequest);
 factory.NO_CHANGE = NO_CHANGE;
 factory.PRIORITY = PRIORITY;
+factory.WAY = WAY;
 FactoryMaker.updateClassFactory(SwitchRequest.__dashjs_factory_name, factory);
 
 export default factory;
