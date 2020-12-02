@@ -195,9 +195,9 @@ function ABRRulesCollection(config) {
                 sampleSize: sample_size
             };
             decision_result += ' context:[[' + JSON.stringify(env) + ']]';
-            if (newValue !== oldValue) {
-                console.log(decision_result);
-            }
+            // if (newValue !== oldValue) {
+            console.log(decision_result);
+            // }
         }
 
 
