@@ -239,6 +239,15 @@ function ScheduleController(config) {
             const schedulingInfo = dashMetrics.getCurrentSchedulingInfo(currentRepresentationInfo.mediaInfo.type);
             safeBufferLevel = schedulingInfo ? schedulingInfo.duration * 1.5 : 1.5;
         }
+        const mapping = {0: 1209, 1: 3615, 2: 7205, 3: 11968, 4: 26809};
+        const throughputHistory = abrController.getThroughputHistory();
+        const tpt = throughputHistory.getSafeAverageThroughput('video', false);
+        const latency = throughputHistory.getAverageLatency('video') / 1000.0;
+        const append_delay = 1.0;
+        const rest = 5.0 - time % 5;
+        const total = latency + 5 * mapping[currentRepresentationInfo.quality] / tpt + append_delay;
+        safeBufferLevel = rest + Math.ceil((total - rest) * 1.0 / 5);
+
         const request = fragmentModel.getRequests({
             state: FragmentModel.FRAGMENT_MODEL_EXECUTED,
             time: time + safeBufferLevel,
@@ -254,6 +263,7 @@ function ScheduleController(config) {
             const trackChanged = !mediaController.isCurrentTrack(request.mediaInfo) && mediaController.getSwitchMode(request.mediaInfo.type) === MediaController.TRACK_SWITCH_MODE_NEVER_REPLACE;
             const qualityChanged = request.quality < currentRepresentationInfo.quality;
             if (fastSwitchModeEnabled && (trackChanged || qualityChanged) && bufferLevel >= safeBufferLevel && abandonmentState !== MetricsConstants.ABANDON_LOAD) {
+                logger.debug('BUPT-Trace [SmartSwitch]: safeBufferLevel=' + safeBufferLevel + ' tpt=' + tpt + ' ' + 'latency=' + latency + ' currentTime:' + time + ' total:' + total + ' reset=' + rest + ' quality=' + mapping[currentRepresentationInfo.quality]);
                 logger.debug('BUPT-Trace [FastSwitch]:' + request.url + ' buffer_level=' + bufferLevel + ' quality(request/current)=' + request.quality + '/' + currentRepresentationInfo.quality);
                 replaceRequest(request);
                 isReplacementRequest = true;
