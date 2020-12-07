@@ -453,7 +453,7 @@ function BolaRule(config) {
 
                 // we want to avoid oscillations
                 // We implement the "BOLA-O" variant: when network bandwidth lies between two encoded bitrate levels, stick to the lowest level.
-                const qualityForThroughput = abrController.getQualityForBitrate(mediaInfo, safeThroughput, latency);
+                const qualityForThroughput = abrController.getQualityForBitrate(mediaInfo, safeThroughput, latency, true);
                 if (quality > bolaState.lastQuality && quality > qualityForThroughput) {
                     // only intervene if we are trying to *increase* quality to an *unsustainable* level
                     // we are only avoid oscillations - do not drop below last quality
@@ -496,7 +496,7 @@ function BolaRule(config) {
             default:
                 logger.debug('BOLA ABR rule invoked in bad state.');
                 // should not arrive here, try to recover
-                switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, safeThroughput, latency);
+                switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, safeThroughput, latency, true);
                 switchRequest.reason.state = bolaState.state;
                 switchRequest.reason.throughput = safeThroughput;
                 switchRequest.reason.latency = latency;

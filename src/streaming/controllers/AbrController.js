@@ -388,10 +388,11 @@ function AbrController() {
      * @param {MediaInfo} mediaInfo
      * @param {number} bitrate A bitrate value, kbps
      * @param {number} latency Expected latency of connection, ms
+     * @param {bool} dfl
      * @returns {number} A quality index <= for the given bitrate
      * @memberof AbrController#
      */
-    function getQualityForBitrate(mediaInfo, bitrate, latency) {
+    function getQualityForBitrate(mediaInfo, bitrate, latency, dfl) {
         const voRepresentation = mediaInfo && mediaInfo.type ? streamProcessorDict[mediaInfo.type].getRepresentationInfo() : null;
 
         if (settings.get().streaming.abr.useDeadTimeLatency && latency && voRepresentation && voRepresentation.fragmentDuration) {
@@ -404,12 +405,21 @@ function AbrController() {
                 bitrate = bitrate * (1 - deadTimeRatio);
             }
         }
+        const sizes = {0: 6.045, 1: 18.075, 2: 36.025, 3: 59.84, 4: 134.045};
 
         const bitrateList = getBitrateList(mediaInfo);
-
+        const history = getThroughputHistory();
         for (let i = bitrateList.length - 1; i >= 0; i--) {
             const bitrateInfo = bitrateList[i];
-            if (bitrate * 1000 >= bitrateInfo.bitrate) {
+            var new_bitrate = bitrate;
+            if (dfl === true) {
+                const etime = history.getTimeCost(i);
+                logger.debug('BUPT [DFL] ' + i + ' ' + etime + 's');
+                if (etime > 0) {
+                    new_bitrate = sizes[i] / etime;
+                }
+            }
+            if (new_bitrate * 1000 >= bitrateInfo.bitrate) {
                 return i;
             }
         }

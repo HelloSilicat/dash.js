@@ -82,7 +82,7 @@ function ThroughputRule(config) {
 
         if (abrController.getAbandonmentStateFor(mediaType) !== MetricsConstants.ABANDON_LOAD) {
             if (currentBufferState.state === MetricsConstants.BUFFER_LOADED || isDynamic) {
-                switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, throughput, latency);
+                switchRequest.quality = abrController.getQualityForBitrate(mediaInfo, throughput, latency, true);
                 scheduleController.setTimeToLoadDelay(0);
                 logger.debug('[' + mediaType + '] requesting switch to index: ', switchRequest.quality, 'Average throughput', Math.round(throughput), 'kbps');
                 switchRequest.reason = {sampleSize: sampleSize, throughput: throughput, latency: latency, bufferLevel: dashMetrics.getCurrentBufferLevel(mediaType)};

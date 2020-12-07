@@ -31,10 +31,11 @@
 
 import Constants from '../constants/Constants';
 import FactoryMaker from '../../core/FactoryMaker';
-
+import axios from 'axios';
 // throughput generally stored in kbit/s
 // latency generally stored in ms
-
+var async = require('async');
+var await = require('await');
 function ThroughputHistory(config) {
 
     config = config || {};
@@ -55,6 +56,7 @@ function ThroughputHistory(config) {
     const settings = config.settings;
 
     let throughputDict,
+        traceTpt,
         latencyDict,
         ewmaThroughputDict,
         ewmaLatencyDict,
@@ -62,6 +64,7 @@ function ThroughputHistory(config) {
         globalSampleSize;
 
     function setup() {
+        traceTpt = [];
         ewmaHalfLife = {
             throughputHalfLife: { fast: EWMA_THROUGHPUT_FAST_HALF_LIFE_SECONDS, slow: EWMA_THROUGHPUT_SLOW_HALF_LIFE_SECONDS },
             latencyHalfLife:    { fast: EWMA_LATENCY_FAST_HALF_LIFE_COUNT,      slow: EWMA_LATENCY_SLOW_HALF_LIFE_COUNT }
@@ -70,6 +73,17 @@ function ThroughputHistory(config) {
 
         reset();
     }
+
+    async function getTimeCost(quality) {
+        const res = await axios.post('http://10.103.240.218:8000/get_time_cost/', {
+            params: {
+                data: traceTpt,
+                bitrate: quality
+            } 
+        });
+        return res.data.time_cost;
+    }
+
 
     function isCachedResponse(mediaType, latencyMs, downloadTimeMs) {
         if (mediaType === Constants.VIDEO) {
@@ -80,6 +94,7 @@ function ThroughputHistory(config) {
     }
 
     function push(mediaType, httpRequest, useDeadTimeLatency) {
+        getTimeCost(0);
         if (!httpRequest.trace || !httpRequest.trace.length) {
             return;
         }
@@ -87,7 +102,13 @@ function ThroughputHistory(config) {
         const latencyTimeInMilliseconds = (httpRequest.tresponse.getTime() - httpRequest.trequest.getTime()) || 1;
         const downloadTimeInMilliseconds = (httpRequest._tfinish.getTime() - httpRequest.tresponse.getTime()) || 1; //Make sure never 0 we divide by this value. Avoid infinity!
         const downloadBytes = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
-
+        for (var i = 0; i < httpRequest.trace.length; ++i) {
+            // traceTpt.push({'time': httpRequest.trace[i].s.getTime(), 'tpt': httpRequest.trace[i].b[0] * 8 / httpRequest.trace[i].d });
+            traceTpt.push(httpRequest.trace[i].b[0] * 8 / httpRequest.trace[i].d / 1000);
+            if (traceTpt.length > 300) {
+                traceTpt.shift();
+            }
+        }
         let throughputMeasureTime;
         if (settings.get().streaming.lowLatencyEnabled) {
             throughputMeasureTime = httpRequest.trace.reduce((a, b) => a + b.d, 0);
@@ -256,7 +277,8 @@ function ThroughputHistory(config) {
         getSafeAverageThroughput: getSafeAverageThroughput,
         getAverageLatency: getAverageLatency,
         reset: reset,
-        getGlobalSampleSize: getGlobalSampleSize
+        getGlobalSampleSize: getGlobalSampleSize,
+        getTimeCost: getTimeCost
     };
 
     setup();
