@@ -108,12 +108,14 @@ function InsufficientBufferRule(config) {
             const bitrate = throughput * (bufferLevel / fragmentDuration) * INSUFFICIENT_BUFFER_SAFETY_FACTOR;
             const pre_quality = abrController.getQualityForBitrate(mediaInfo, bitrate, latency);
             var new_quality = 0;
-            for (var i = 4; i >= 0; i--) {
-                const etime = throughputHistory.getTimeCost(i);
-                if (i === 0 || (etime > 0 && etime < bufferLevel / 2)) {
-                    new_quality = i;
-                    break;
-                }
+            for (var i = 0; i <= 0; i++) {
+                var promise = throughputHistory.getTimeCost(i);
+                promise.then((response) => {
+                    const etime = response;
+                    if (i === 0 || (etime > 0 && etime < bufferLevel / 2)) {
+                        new_quality = i;
+                    }
+                });
             }
             logger.debug('BUPT [DFL Insufficient] ' + pre_quality + ' ' + new_quality);
             switchRequest.quality = Math.max(pre_quality, new_quality);

@@ -32,10 +32,10 @@
 import Constants from '../constants/Constants';
 import FactoryMaker from '../../core/FactoryMaker';
 import axios from 'axios';
+import async from 'async';
+import await from 'await';
 // throughput generally stored in kbit/s
 // latency generally stored in ms
-var async = require('async');
-var await = require('await');
 function ThroughputHistory(config) {
 
     config = config || {};
@@ -81,9 +81,9 @@ function ThroughputHistory(config) {
                 bitrate: quality
             } 
         });
+        // console.log(res.data);
         return res.data.time_cost;
     }
-
 
     function isCachedResponse(mediaType, latencyMs, downloadTimeMs) {
         if (mediaType === Constants.VIDEO) {

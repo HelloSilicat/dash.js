@@ -1,6 +1,5 @@
 module.exports = function (grunt) {
     require('time-grunt')(grunt);
-
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         githash: {
@@ -212,7 +211,7 @@ module.exports = function (grunt) {
             options: {
                 sourceMap: true,
                 compact: true,
-                presets: ['env']
+                presets: ['es2015']
             },
             es5: {
                 files: [{

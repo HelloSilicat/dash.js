@@ -413,11 +413,14 @@ function AbrController() {
             const bitrateInfo = bitrateList[i];
             var new_bitrate = bitrate;
             if (dfl === true) {
-                const etime = history.getTimeCost(i);
-                logger.debug('BUPT [DFL] ' + i + ' ' + etime + 's');
-                if (etime > 0) {
-                    new_bitrate = sizes[i] / etime;
-                }
+                var promise = history.getTimeCost(i);
+                promise.then((response) => {
+                    const etime = response;
+                    logger.debug('BUPT [DFL] ' + i + ' ' + etime + 's');
+                    if (etime > 0) {
+                        new_bitrate = sizes[i] / etime;
+                    }
+                });
             }
             if (new_bitrate * 1000 >= bitrateInfo.bitrate) {
                 return i;
