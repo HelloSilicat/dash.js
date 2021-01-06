@@ -37,8 +37,8 @@ import DashJSError from '../vo/DashJSError';
 import CmcdModel from '../models/CmcdModel';
 import Utils from '../../core/Utils';
 import axios from 'axios';
-// import async from 'async';
-// import await from 'await';
+import async from 'async';
+import await from 'await';
 /**
  * @module HTTPLoader
  * @ignore
@@ -82,9 +82,7 @@ function HTTPLoader(cfg) {
     }
 
     async function getHandover() {
-        const res = await axios.post('http://0.0.0.0:8000/get_handover_info/', {
-            params: {}
-        });
+        const res = await axios.get('http://0.0.0.0:8000/get_handover_info/');
         return res.data.handover;
     }
 
