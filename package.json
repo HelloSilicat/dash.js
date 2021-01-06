@@ -16,6 +16,7 @@
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha --require mochahook -- test/"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.12.10",
     "babel": "^5.3.1",
     "babel-preset-env": "^1.7.0",
     "babelify": "^6.1.0",
@@ -60,6 +61,7 @@
     "async": "^3.2.0",
     "await": "^0.2.6",
     "axios": "^0.21.1",
+    "babel-polyfill": "^6.26.0",
     "codem-isoboxer": "0.3.6",
     "fast-deep-equal": "2.0.1",
     "html-entities": "^1.2.1",

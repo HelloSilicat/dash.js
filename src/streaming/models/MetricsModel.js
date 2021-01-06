@@ -116,12 +116,13 @@ function MetricsModel(config) {
         }
     }
 
-    function appendHttpTrace(httpRequest, s, d, b) {
+    function appendHttpTrace(httpRequest, s, d, b, h) {
         let vo = new HTTPRequestTrace();
 
         vo.s = s;
         vo.d = d;
         vo.b = b;
+        vo.h = h;
 
         httpRequest.trace.push(vo);
 
@@ -185,7 +186,7 @@ function MetricsModel(config) {
 
         if (traces) {
             traces.forEach(trace => {
-                appendHttpTrace(vo, trace.s, trace.d, trace.b);
+                appendHttpTrace(vo, trace.s, trace.d, trace.b, trace.h);
             });
         } else {
             // The interval and trace shall be absent for redirect and failure records.

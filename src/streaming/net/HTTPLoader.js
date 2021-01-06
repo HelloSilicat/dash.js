@@ -39,6 +39,8 @@ import Utils from '../../core/Utils';
 import axios from 'axios';
 import async from 'async';
 import await from 'await';
+
+
 /**
  * @module HTTPLoader
  * @ignore
@@ -187,14 +189,12 @@ function HTTPLoader(cfg) {
                     traces.push({
                         s: lastTraceTime,
                         d: event.time ? event.time : currentTime.getTime() - lastTraceTime.getTime(),
-                        b: [event.loaded ? event.loaded - lastTraceReceivedCount : 0]
+                        b: [event.loaded ? event.loaded - lastTraceReceivedCount : 0],
+                        h: handover
                     });
 
                     lastTraceTime = currentTime;
                     lastTraceReceivedCount = event.loaded;
-                    
-                    const finalTime = new Date();
-                    console.log("[BUPT-Handover] " + handover + " dur: " + finalTime.getTime() - currentTime.getTime());
                });
             }
 
