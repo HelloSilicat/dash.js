@@ -36,7 +36,9 @@ import FactoryMaker from '../../core/FactoryMaker';
 import DashJSError from '../vo/DashJSError';
 import CmcdModel from '../models/CmcdModel';
 import Utils from '../../core/Utils';
-
+import axios from 'axios';
+// import async from 'async';
+// import await from 'await';
 /**
  * @module HTTPLoader
  * @ignore
@@ -77,6 +79,13 @@ function HTTPLoader(cfg) {
             [HTTPRequest.BITSTREAM_SWITCHING_SEGMENT_TYPE]: errors.DOWNLOAD_ERROR_ID_CONTENT_CODE,
             [HTTPRequest.OTHER_TYPE]: errors.DOWNLOAD_ERROR_ID_CONTENT_CODE
         };
+    }
+
+    async function getHandover() {
+        const res = await axios.post('http://0.0.0.0:8000/get_handover_info/', {
+            params: {}
+        });
+        return res.data.handover;
     }
 
     function internalLoad(config, remainingAttempts) {
@@ -174,14 +183,21 @@ function HTTPLoader(cfg) {
             }
 
             if (!event.noTrace) {
-                traces.push({
-                    s: lastTraceTime,
-                    d: event.time ? event.time : currentTime.getTime() - lastTraceTime.getTime(),
-                    b: [event.loaded ? event.loaded - lastTraceReceivedCount : 0]
-                });
+                var promise = getHandover();
+                promise.then((res) => {
+                    const handover = res;
+                    traces.push({
+                        s: lastTraceTime,
+                        d: event.time ? event.time : currentTime.getTime() - lastTraceTime.getTime(),
+                        b: [event.loaded ? event.loaded - lastTraceReceivedCount : 0]
+                    });
 
-                lastTraceTime = currentTime;
-                lastTraceReceivedCount = event.loaded;
+                    lastTraceTime = currentTime;
+                    lastTraceReceivedCount = event.loaded;
+                    
+                    const finalTime = new Date();
+                    console.log("[BUPT-Handover] " + handover + " dur: " + finalTime.getTime() - currentTime.getTime());
+               });
             }
 
             if (config.progress && event) {
