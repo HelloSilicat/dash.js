@@ -186,6 +186,9 @@ function HTTPLoader(cfg) {
                 var promise = getHandover();
                 promise.then((res) => {
                     const handover = res;
+                    if (handover == 1) {
+                        console.log('[' + new Date().getTime() + '][HTTPLoader1]' + '[BUPT-Handover]' + handover);
+                    }
                     traces.push({
                         s: lastTraceTime,
                         d: event.time ? event.time : currentTime.getTime() - lastTraceTime.getTime(),
