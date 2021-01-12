@@ -86,22 +86,43 @@ function ThroughputHistory(config) {
 
         const latencyTimeInMilliseconds = (httpRequest.tresponse.getTime() - httpRequest.trequest.getTime()) || 1;
         const downloadTimeInMilliseconds = (httpRequest._tfinish.getTime() - httpRequest.tresponse.getTime()) || 1; //Make sure never 0 we divide by this value. Avoid infinity!
-        const downloadBytes = httpRequest.trace.reduce((a, b) => a + (b.h == 1 ? 0 : b.b[0]), 0);
+        const downloadBytes = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
+
+
+        let output = '[BUPT Handover-Trace] ';
+        for (let i = 0; i < httpRequest.trace.length; ++i) {
+            var temp = httpRequest.trace[i];
+            output += '(' + temp.b[0] + ',' + temp.d + ',' + temp.h + ')';
+        }
+        console.log(output);
 
         let throughputMeasureTime = 0;
         // console.log(httpRequest.trace);
         if (settings.get().streaming.lowLatencyEnabled) {
-           throughputMeasureTime = httpRequest.trace.reduce((a, b) => a + (b.h == 1 ? 0 : b.d), 0);
+           throughputMeasureTime = httpRequest.trace.reduce((a, b) => a + b.d, 0);
         } else {
             throughputMeasureTime = useDeadTimeLatency ? downloadTimeInMilliseconds : latencyTimeInMilliseconds + downloadTimeInMilliseconds;
         }
-        throughputMeasureTime -= httpRequest.trace.reduce((a, b) => a + (b.h != 1 ? 0 : b.d), 0);
-        const throughput = Math.round((8 * downloadBytes) / throughputMeasureTime); // bits/ms = kbits/s
+
+        let D1 = 0.0, B1 = 0.0, R = 10;
+        let i = R;
+        while (i < httpRequest.trace.length) {
+            if (httpRequest.trace[i].h == 1) {
+                for (let j = i - R; j <= i; ++j) {
+                    D1 += httpRequest.trace[j].d;
+                    B1 += httpRequest.trace[j].b[0];
+                }
+                i += (R + 1);
+            } else {
+                i += 1;
+            }
+        }
+        const throughput = Math.round((8 * (downloadBytes - B1)) / (throughputMeasureTime - D1)); // bits/ms = kbits/s
 
         const A1 = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
         const A2 = useDeadTimeLatency ? downloadTimeInMilliseconds : latencyTimeInMilliseconds + downloadTimeInMilliseconds;
         const A3 = Math.round((8 * A1) / A2);
-        console.log('[BUPT-Handover ThroughputDifference] before: ' + A3 + ' after: ' + throughput + ' ' + A1 + ' ' + A2 + ' ' + downloadBytes + ' ' + throughputMeasureTime); 
+        console.log('[BUPT-Handover ThroughputDifference] before: ' + A3 + ' after: ' + throughput + ' diff: ' + (throughput - A3) + ' ' + A1 + ' ' + A2 + ' ' + downloadBytes + ' ' + throughputMeasureTime); 
 
 
         checkSettingsForMediaType(mediaType);
