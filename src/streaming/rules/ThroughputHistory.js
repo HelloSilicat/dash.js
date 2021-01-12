@@ -88,6 +88,17 @@ function ThroughputHistory(config) {
         const downloadTimeInMilliseconds = (httpRequest._tfinish.getTime() - httpRequest.tresponse.getTime()) || 1; //Make sure never 0 we divide by this value. Avoid infinity!
         const downloadBytes = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
 
+        let last = -1;
+        for (let p = 0; p < httpRequest.trace.length; ++p) {
+            if (httpRequest.trace[p].h == 1 && last == 1) {
+                last = httpRequest.trace[p].h;
+                httpRequest.trace[p].h = 0;
+            } else {
+                last = httpRequest.trace[p].h;
+            }
+        }
+
+
 
         let output = '[BUPT Handover-Trace] ';
         for (let i = 0; i < httpRequest.trace.length; ++i) {
@@ -104,15 +115,15 @@ function ThroughputHistory(config) {
             throughputMeasureTime = useDeadTimeLatency ? downloadTimeInMilliseconds : latencyTimeInMilliseconds + downloadTimeInMilliseconds;
         }
 
-        let D1 = 0.0, B1 = 0.0, R = 10;
+        let D1 = 0.0, B1 = 0.0, R = 2;
         let i = R;
         while (i < httpRequest.trace.length) {
             if (httpRequest.trace[i].h == 1) {
-                for (let j = i - R; j <= i; ++j) {
+                for (let j = i - R; j < i; ++j) {
                     D1 += httpRequest.trace[j].d;
                     B1 += httpRequest.trace[j].b[0];
                 }
-                i += (R + 1);
+                i += R;
             } else {
                 i += 1;
             }
@@ -122,7 +133,8 @@ function ThroughputHistory(config) {
         const A1 = httpRequest.trace.reduce((a, b) => a + b.b[0], 0);
         const A2 = useDeadTimeLatency ? downloadTimeInMilliseconds : latencyTimeInMilliseconds + downloadTimeInMilliseconds;
         const A3 = Math.round((8 * A1) / A2);
-        console.log('[BUPT-Handover ThroughputDifference] before: ' + A3 + ' after: ' + throughput + ' diff: ' + (throughput - A3) + ' ' + A1 + ' ' + A2 + ' ' + downloadBytes + ' ' + throughputMeasureTime); 
+        console.log('[BUPT-Handover Trace]' + D1 + ' ' + B1 + ' ' + httpRequest.trace.reduce((a, b) => a + (b.h == 1 ? b.b[0] : 0), 0));
+        console.log('[BUPT-Handover ThroughputDifference] before: ' + A3 + ' after: ' + throughput + ' diff: ' + (throughput - A3) + ' len: ' + httpRequest.trace.length + ' ' + A1 + ' ' + A2 + ' ' + downloadBytes + ' ' + throughputMeasureTime); 
 
 
         checkSettingsForMediaType(mediaType);
