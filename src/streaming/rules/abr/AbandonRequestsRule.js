@@ -31,6 +31,9 @@
 import SwitchRequest from '../SwitchRequest';
 import FactoryMaker from '../../../core/FactoryMaker';
 import Debug from '../../../core/Debug';
+import axios from 'axios';
+import await from 'await';
+import async from 'async';
 
 function AbandonRequestsRule(config) {
 
@@ -45,6 +48,8 @@ function AbandonRequestsRule(config) {
     const settings = config.settings;
 
     let instance,
+        last_time,
+        last_req_time,
         logger,
         fragmentDict,
         abandonDict,
@@ -52,6 +57,8 @@ function AbandonRequestsRule(config) {
 
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
+        last_time = new Date().getTime();
+        last_req_time = -101;
         reset();
     }
 
@@ -65,11 +72,22 @@ function AbandonRequestsRule(config) {
         throughputArray[type].push(throughput);
     }
 
+    async function getHandoverInfo(T) {
+        const res = await axios.get('http://0.0.0.0:8000/get_history_handover_info', {
+            params: {
+                time: T,
+            }
+        });
+        // console.log(res.data);
+        return res.data.handover;
+    }
+
     function shouldAbandon(rulesContext) {
         const switchRequest = SwitchRequest(context).create(SwitchRequest.NO_CHANGE, {name: AbandonRequestsRule.__dashjs_factory_name});
 
         if (!rulesContext || !rulesContext.hasOwnProperty('getMediaInfo') || !rulesContext.hasOwnProperty('getMediaType') || !rulesContext.hasOwnProperty('getCurrentRequest') ||
             !rulesContext.hasOwnProperty('getRepresentationInfo') || !rulesContext.hasOwnProperty('getAbrController')) {
+            last_time = new Date().getTime();
             return switchRequest;
         }
 
@@ -83,11 +101,13 @@ function AbandonRequestsRule(config) {
             const stableBufferTime = mediaPlayerModel.getStableBufferTime();
             const bufferLevel = dashMetrics.getCurrentBufferLevel(mediaType);
             if ( bufferLevel > stableBufferTime ) {
+                last_time = new Date().getTime();
                 return switchRequest;
             }
 
             const fragmentInfo = fragmentDict[mediaType][req.index];
             if (fragmentInfo === null || req.firstByteDate === null || abandonDict.hasOwnProperty(fragmentInfo.id)) {
+                last_time = new Date().getTime();
                 return switchRequest;
             }
 
@@ -115,6 +135,7 @@ function AbandonRequestsRule(config) {
                 fragmentInfo.estimatedTimeOfDownload = +((fragmentInfo.bytesTotal * 8 / fragmentInfo.measuredBandwidthInKbps) / 1000).toFixed(2);
 
                 if (fragmentInfo.estimatedTimeOfDownload < fragmentInfo.segmentDuration * ABANDON_MULTIPLIER || rulesContext.getRepresentationInfo().quality === 0 ) {
+                    last_time = new Date().getTime();
                     return switchRequest;
                 } else if (!abandonDict.hasOwnProperty(fragmentInfo.id)) {
 
@@ -127,12 +148,30 @@ function AbandonRequestsRule(config) {
                     const estimateOtherBytesTotal = fragmentInfo.bytesTotal * bitrateList[newQuality].bitrate / bitrateList[abrController.getQualityFor(mediaType)].bitrate;
 
                     if (bytesRemaining > estimateOtherBytesTotal) {
-                        switchRequest.quality = newQuality;
-                        switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
-                        switchRequest.reason.fragmentID = fragmentInfo.id;
-                        abandonDict[fragmentInfo.id] = fragmentInfo;
-                        logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
-                        delete fragmentDict[mediaType][fragmentInfo.id];
+                        const T = (new Date().getTime() - last_time) / 1000;
+                        if (new Date().getTime() - last_req_time > 100) {
+                            var promise = getHandoverInfo(T);
+                            last_req_time = new Date().getTime();
+                            promise.then((response) => {
+                                const handover = response;
+                                console.log('BUPT-Handover Abandon  handover=' + handover + ' T=' + T + 's');
+                                if (handover == 0) {
+                                    switchRequest.quality = newQuality;
+                                    switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
+                                    switchRequest.reason.fragmentID = fragmentInfo.id;
+                                    abandonDict[fragmentInfo.id] = fragmentInfo;
+                                    logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                                    delete fragmentDict[mediaType][fragmentInfo.id];
+                                }
+                            });
+                        } else {
+                            switchRequest.quality = newQuality;
+                            switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
+                            switchRequest.reason.fragmentID = fragmentInfo.id;
+                            abandonDict[fragmentInfo.id] = fragmentInfo;
+                            logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                            delete fragmentDict[mediaType][fragmentInfo.id];
+                        }
                     }
                 }
             } else if (fragmentInfo.bytesLoaded === fragmentInfo.bytesTotal) {
@@ -140,6 +179,7 @@ function AbandonRequestsRule(config) {
             }
         }
 
+        last_time = new Date().getTime();
         return switchRequest;
     }
 

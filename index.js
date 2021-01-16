@@ -35,6 +35,7 @@ import MetricsReporting from './src/streaming/metrics/MetricsReporting';
 import Protection from './src/streaming/protection/Protection';
 import MediaPlayerFactory from './src/streaming/MediaPlayerFactory';
 import Debug from './src/core/Debug';
+import "babel-polyfill"
 
 dashjs.Protection = Protection;
 dashjs.MetricsReporting = MetricsReporting;

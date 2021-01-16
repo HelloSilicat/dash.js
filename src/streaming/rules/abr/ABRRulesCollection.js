@@ -36,6 +36,9 @@ import SwitchHistoryRule from './SwitchHistoryRule';
 import BolaRule from './BolaRule';
 import FactoryMaker from '../../../core/FactoryMaker';
 import SwitchRequest from '../SwitchRequest';
+import axios from 'axios';
+import await from 'await';
+import async from 'async';
 
 const QUALITY_SWITCH_RULES = 'qualitySwitchRules';
 const ABANDON_FRAGMENT_RULES = 'abandonFragmentRules';
@@ -50,13 +53,16 @@ function ABRRulesCollection(config) {
     const settings = config.settings;
 
     let instance,
+        last_time,
+        last_quality,
         qualitySwitchRules,
         abandonFragmentRules;
 
     function initialize() {
         qualitySwitchRules = [];
         abandonFragmentRules = [];
-
+        last_time = new Date().getTime();
+        last_quality = -1;
         if (settings.get().streaming.abr.useDefaultABRRules) {
             // Only one of BolaRule and ThroughputRule will give a switchRequest.quality !== SwitchRequest.NO_CHANGE.
             // This is controlled by useBufferOccupancyABR mechanism in AbrController.
@@ -109,6 +115,16 @@ function ABRRulesCollection(config) {
         return srArray.filter(sr => sr.quality > SwitchRequest.NO_CHANGE);
     }
 
+    async function getHandoverInfo(T) {
+        const res = await axios.get('http://0.0.0.0:8000/get_history_handover_info', {
+            params: {
+                time: T
+            }
+        });
+        // console.log(res.data);
+        return res.data.handover;
+    }
+
     function getMinSwitchRequest(srArray) {
         const values = {};
         let i,
@@ -147,6 +163,25 @@ function ABRRulesCollection(config) {
         if (newQuality !== SwitchRequest.NO_CHANGE) {
             quality = newQuality;
         }
+
+        if (last_quality != -1) {
+            if (quality < last_quality) {
+                const T = (new Date().getTime() - last_time) / 1000;
+                var promise = getHandoverInfo(T);
+                promise.then((response) => {
+                    const handover = response;
+                    console.log('BUPT-Handover ' + handover + ' T=' + T + 's');
+                    if (handover == 1) {
+                        quality = last_quality;
+                    }
+                });
+            }
+        }
+        if (quality != -1) {
+            last_quality = quality;
+        }
+        last_time = new Date().getTime();
+        console.log('BUPT Trace Last Quality:', last_quality);
 
         return SwitchRequest(context).create(quality);
     }
