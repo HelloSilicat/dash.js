@@ -155,11 +155,9 @@ function ABRRulesCollection(config) {
             last_quality = oldValue;
         }
         if (last_quality != -1) {
-            console.log(new Date().getTime() + ' 1 BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
+            console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             if (quality < last_quality) {
                 const T = (new Date().getTime() - last_time) / 1000;
-                
-
                 $.ajax({
                     async: false,
                     type : "GET",
@@ -168,10 +166,8 @@ function ABRRulesCollection(config) {
                     url : "http://0.0.0.0:8000/get_history_handover_info",
                     data : {"time": T},
                     success : function(data) {
-                        // console.log(data);
-                        // data = JSON.stringify(data);
                         const handover = data["handover"];
-                        console.log(new Date().getTime() + ' 2 BUPT-Handover ' + handover + ' T=' + T + 's');
+                        console.log(new Date().getTime() + 'BUPT-Handover ' + handover + ' T=' + T + 's');
                         if (handover == 1) {
                             quality = last_quality;
                         }
@@ -179,10 +175,10 @@ function ABRRulesCollection(config) {
                         return SwitchRequest(context).create(quality);
                     },
                     error : function(e){
+                        console.log('AJAX ERROR');
                         console.log(e.status);
                         console.log(e.responseText);
                         last_quality = quality;
-                        return SwitchRequest(context).create(quality);
                         return SwitchRequest(context).create(quality);
                     }
                 });
@@ -191,7 +187,7 @@ function ABRRulesCollection(config) {
                 return SwitchRequest(context).create(quality);
             }
         } else {
-            console.log(new Date().getTime() + ' 3 BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
+            console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             last_quality = quality;
             return SwitchRequest(context).create(quality);
         }
@@ -200,10 +196,9 @@ function ABRRulesCollection(config) {
     function getMaxQuality(rulesContext) {
         const switchRequestArray = qualitySwitchRules.map(rule => rule.getMaxIndex(rulesContext));
         const activeRules = getActiveRules(switchRequestArray);
-        // console.log(new Date().getTime() + 'BUPT Handover -----Begin-----');
         const maxQuality = getMinSwitchRequest(activeRules, rulesContext.getRepresentationInfo().quality);
         last_time = new Date().getTime();
-        // console.log(new Date().getTime() + 'BUPT Handover -----End-----\n\n\n--');
+
         // For BUPT Trace
         if (switchRequestArray && switchRequestArray.length == 4) {
             const mediaType = rulesContext.getMediaType();

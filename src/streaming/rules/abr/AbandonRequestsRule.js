@@ -160,7 +160,7 @@ function AbandonRequestsRule(config) {
                                     }
                                 },
                                 error : function(e){
-                                    console.log("ERROR");
+                                    console.log("AJAX ERROR");
                                     console.log(e.status);
                                     console.log(e.responseText);
                                 }
