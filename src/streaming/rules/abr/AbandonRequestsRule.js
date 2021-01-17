@@ -31,9 +31,7 @@
 import SwitchRequest from '../SwitchRequest';
 import FactoryMaker from '../../../core/FactoryMaker';
 import Debug from '../../../core/Debug';
-import axios from 'axios';
-import await from 'await';
-import async from 'async';
+import $ from 'jquery';
 
 function AbandonRequestsRule(config) {
 
@@ -41,6 +39,7 @@ function AbandonRequestsRule(config) {
     const ABANDON_MULTIPLIER = 1.8;
     const GRACE_TIME_THRESHOLD = 500;
     const MIN_LENGTH_TO_AVERAGE = 5;
+    const REQ = 50;
 
     const context = this.context;
     const mediaPlayerModel = config.mediaPlayerModel;
@@ -58,7 +57,7 @@ function AbandonRequestsRule(config) {
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
         last_time = new Date().getTime();
-        last_req_time = -101;
+        last_req_time = -(REQ + 1);
         reset();
     }
 
@@ -70,16 +69,6 @@ function AbandonRequestsRule(config) {
     function storeLastRequestThroughputByType(type, throughput) {
         throughputArray[type] = throughputArray[type] || [];
         throughputArray[type].push(throughput);
-    }
-
-    async function getHandoverInfo(T) {
-        const res = await axios.get('http://0.0.0.0:8000/get_history_handover_info', {
-            params: {
-                time: T,
-            }
-        });
-        // console.log(res.data);
-        return res.data.handover;
     }
 
     function shouldAbandon(rulesContext) {
@@ -148,20 +137,32 @@ function AbandonRequestsRule(config) {
                     const estimateOtherBytesTotal = fragmentInfo.bytesTotal * bitrateList[newQuality].bitrate / bitrateList[abrController.getQualityFor(mediaType)].bitrate;
 
                     if (bytesRemaining > estimateOtherBytesTotal) {
-                        const T = (new Date().getTime() - last_time) / 1000;
-                        if (new Date().getTime() - last_req_time > 100) {
-                            var promise = getHandoverInfo(T);
+                        const T = (new Date().getTime() - last_time) / 1000 * 4;
+                        if (new Date().getTime() - last_req_time > REQ) {
                             last_req_time = new Date().getTime();
-                            promise.then((response) => {
-                                const handover = response;
-                                console.log('BUPT-Handover Abandon  handover=' + handover + ' T=' + T + 's');
-                                if (handover == 0) {
-                                    switchRequest.quality = newQuality;
-                                    switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
-                                    switchRequest.reason.fragmentID = fragmentInfo.id;
-                                    abandonDict[fragmentInfo.id] = fragmentInfo;
-                                    logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
-                                    delete fragmentDict[mediaType][fragmentInfo.id];
+                            $.ajax({
+                                async: false,
+                                type : "GET",
+                                contentType: "application/json",
+                                dataType: 'JSON',
+                                url : "http://0.0.0.0:8000/get_history_handover_info",
+                                data : {"time": T},
+                                success : function(data) {
+                                    const handover = data["handover"];
+                                    console.log('BUPT-Handover Abandon  handover=' + handover + ' T=' + T + 's');
+                                    if (handover == 0) {
+                                        switchRequest.quality = newQuality;
+                                        switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
+                                        switchRequest.reason.fragmentID = fragmentInfo.id;
+                                        abandonDict[fragmentInfo.id] = fragmentInfo;
+                                        logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                                        delete fragmentDict[mediaType][fragmentInfo.id];
+                                    }
+                                },
+                                error : function(e){
+                                    console.log("ERROR");
+                                    console.log(e.status);
+                                    console.log(e.responseText);
                                 }
                             });
                         } else {

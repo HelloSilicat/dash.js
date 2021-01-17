@@ -36,9 +36,7 @@ import SwitchHistoryRule from './SwitchHistoryRule';
 import BolaRule from './BolaRule';
 import FactoryMaker from '../../../core/FactoryMaker';
 import SwitchRequest from '../SwitchRequest';
-import axios from 'axios';
-import await from 'await';
-import async from 'async';
+import $ from 'jquery';
 
 const QUALITY_SWITCH_RULES = 'qualitySwitchRules';
 const ABANDON_FRAGMENT_RULES = 'abandonFragmentRules';
@@ -115,17 +113,7 @@ function ABRRulesCollection(config) {
         return srArray.filter(sr => sr.quality > SwitchRequest.NO_CHANGE);
     }
 
-    async function getHandoverInfo(T) {
-        const res = await axios.get('http://0.0.0.0:8000/get_history_handover_info', {
-            params: {
-                time: T
-            }
-        });
-        // console.log(res.data);
-        return res.data.handover;
-    }
-
-    function getMinSwitchRequest(srArray) {
+    function getMinSwitchRequest(srArray, oldValue) {
         const values = {};
         let i,
             len,
@@ -163,34 +151,59 @@ function ABRRulesCollection(config) {
         if (newQuality !== SwitchRequest.NO_CHANGE) {
             quality = newQuality;
         }
-
+        if (last_quality == -1) {
+            last_quality = oldValue;
+        }
         if (last_quality != -1) {
+            console.log(new Date().getTime() + ' 1 BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             if (quality < last_quality) {
                 const T = (new Date().getTime() - last_time) / 1000;
-                var promise = getHandoverInfo(T);
-                promise.then((response) => {
-                    const handover = response;
-                    console.log('BUPT-Handover ' + handover + ' T=' + T + 's');
-                    if (handover == 1) {
-                        quality = last_quality;
+                
+
+                $.ajax({
+                    async: false,
+                    type : "GET",
+                    contentType: "application/json",
+                    dataType: 'JSON',
+                    url : "http://0.0.0.0:8000/get_history_handover_info",
+                    data : {"time": T},
+                    success : function(data) {
+                        // console.log(data);
+                        // data = JSON.stringify(data);
+                        const handover = data["handover"];
+                        console.log(new Date().getTime() + ' 2 BUPT-Handover ' + handover + ' T=' + T + 's');
+                        if (handover == 1) {
+                            quality = last_quality;
+                        }
+                        last_quality = quality;
+                        return SwitchRequest(context).create(quality);
+                    },
+                    error : function(e){
+                        console.log(e.status);
+                        console.log(e.responseText);
+                        last_quality = quality;
+                        return SwitchRequest(context).create(quality);
+                        return SwitchRequest(context).create(quality);
                     }
                 });
+            } else {
+                last_quality = quality;
+                return SwitchRequest(context).create(quality);
             }
-        }
-        if (quality != -1) {
+        } else {
+            console.log(new Date().getTime() + ' 3 BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             last_quality = quality;
+            return SwitchRequest(context).create(quality);
         }
-        last_time = new Date().getTime();
-        console.log('BUPT Trace Last Quality:', last_quality);
-
-        return SwitchRequest(context).create(quality);
     }
 
     function getMaxQuality(rulesContext) {
         const switchRequestArray = qualitySwitchRules.map(rule => rule.getMaxIndex(rulesContext));
         const activeRules = getActiveRules(switchRequestArray);
-        const maxQuality = getMinSwitchRequest(activeRules);
-
+        // console.log(new Date().getTime() + 'BUPT Handover -----Begin-----');
+        const maxQuality = getMinSwitchRequest(activeRules, rulesContext.getRepresentationInfo().quality);
+        last_time = new Date().getTime();
+        // console.log(new Date().getTime() + 'BUPT Handover -----End-----\n\n\n--');
         // For BUPT Trace
         if (switchRequestArray && switchRequestArray.length == 4) {
             const mediaType = rulesContext.getMediaType();
