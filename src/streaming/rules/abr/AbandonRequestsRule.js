@@ -142,15 +142,15 @@ function AbandonRequestsRule(config) {
                             last_req_time = new Date().getTime();
                             $.ajax({
                                 async: false,
-                                type : "GET",
-                                contentType: "application/json",
+                                type: 'GET',
+                                contentType: 'application/json',
                                 dataType: 'JSON',
-                                url : "http://0.0.0.0:8000/get_history_handover_info",
-                                data : {"time": T},
-                                success : function(data) {
-                                    const handover = data["handover"];
+                                url: 'http://0.0.0.0:8000/get_history_handover_info',
+                                data: {'time': T},
+                                success: function (data) {
+                                    const handover = data.handover;
                                     console.log('BUPT-Handover Abandon  handover=' + handover + ' T=' + T + 's');
-                                    if (handover == 0) {
+                                    if (handover === 0) {
                                         switchRequest.quality = newQuality;
                                         switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
                                         switchRequest.reason.fragmentID = fragmentInfo.id;
@@ -159,8 +159,8 @@ function AbandonRequestsRule(config) {
                                         delete fragmentDict[mediaType][fragmentInfo.id];
                                     }
                                 },
-                                error : function(e){
-                                    console.log("AJAX ERROR");
+                                error: function (e) {
+                                    console.log('AJAX ERROR');
                                     console.log(e.status);
                                     console.log(e.responseText);
                                 }

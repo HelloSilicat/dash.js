@@ -158,15 +158,15 @@ function ABRRulesCollection(config) {
             console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             if (quality < last_quality) {
                 const T = (new Date().getTime() - last_time) / 1000;
-                $.ajax({
+                $.ajax ({
                     async: false,
-                    type : "GET",
-                    contentType: "application/json",
+                    type: 'GET',
+                    contentType: 'application/json',
                     dataType: 'JSON',
-                    url : "http://0.0.0.0:8000/get_history_handover_info",
-                    data : {"time": T},
-                    success : function(data) {
-                        const handover = data["handover"];
+                    url: 'http://0.0.0.0:8000/get_history_handover_info',
+                    data: {'time': T},
+                    success: function (data) {
+                        const handover = data.handover;
                         console.log(new Date().getTime() + 'BUPT-Handover ' + handover + ' T=' + T + 's');
                         if (handover == 1) {
                             quality = last_quality;
@@ -174,7 +174,7 @@ function ABRRulesCollection(config) {
                         last_quality = quality;
                         return SwitchRequest(context).create(quality);
                     },
-                    error : function(e){
+                    error: function (e) {
                         console.log('AJAX ERROR');
                         console.log(e.status);
                         console.log(e.responseText);
