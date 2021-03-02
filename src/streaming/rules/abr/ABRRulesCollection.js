@@ -154,8 +154,8 @@ function ABRRulesCollection(config) {
         if (last_quality == -1) {
             last_quality = oldValue;
         }
+        console.log('[' + new Date().getTime() + '][BUPT-Handover Abr Raw] Last Quality:', last_quality, ' New Quality:', quality);
         if (last_quality != -1) {
-            console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             if (quality < last_quality) {
                 const T = (new Date().getTime() - last_time) / 1000;
                 $.ajax ({
@@ -167,15 +167,16 @@ function ABRRulesCollection(config) {
                     data: {'time': T},
                     success: function (data) {
                         const handover = data.handover;
-                        console.log(new Date().getTime() + 'BUPT-Handover ' + handover + ' T=' + T + 's');
+                        console.log('[' + new Date().getTime() + '][BUPT-Handover Abr Request] resp=' + handover + ' T=' + T + 's');
                         if (handover == 1) {
+                            console.log('[' + new Date().getTime() + '][BUPT-Handover Abr Forbid] from ' + quality + ' to ' + last_quality );
                             quality = last_quality;
                         }
                         last_quality = quality;
                         return SwitchRequest(context).create(quality);
                     },
                     error: function (e) {
-                        console.log('AJAX ERROR');
+                        console.log('[' + new Date().getTime() + '][BUPT-AJAX] ABR ERROR');
                         console.log(e.status);
                         console.log(e.responseText);
                         last_quality = quality;
@@ -187,7 +188,7 @@ function ABRRulesCollection(config) {
                 return SwitchRequest(context).create(quality);
             }
         } else {
-            console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
+            // console.log(new Date().getTime() + 'BUPT Handover Last Quality:', last_quality, ' New Quality:', quality);
             last_quality = quality;
             return SwitchRequest(context).create(quality);
         }

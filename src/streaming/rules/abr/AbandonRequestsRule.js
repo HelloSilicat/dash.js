@@ -71,6 +71,7 @@ function AbandonRequestsRule(config) {
         throughputArray[type].push(throughput);
     }
 
+
     function shouldAbandon(rulesContext) {
         const switchRequest = SwitchRequest(context).create(SwitchRequest.NO_CHANGE, {name: AbandonRequestsRule.__dashjs_factory_name});
 
@@ -138,6 +139,7 @@ function AbandonRequestsRule(config) {
 
                     if (bytesRemaining > estimateOtherBytesTotal) {
                         const T = (new Date().getTime() - last_time) / 1000 * 4;
+                        logger.debug('BUPT-Handover Abandon request!' + new Date().getTime() - last_req_time + ' ' + REQ);
                         if (new Date().getTime() - last_req_time > REQ) {
                             last_req_time = new Date().getTime();
                             $.ajax({
@@ -149,20 +151,29 @@ function AbandonRequestsRule(config) {
                                 data: {'time': T},
                                 success: function (data) {
                                     const handover = data.handover;
-                                    console.log('BUPT-Handover Abandon  handover=' + handover + ' T=' + T + 's');
+                                    logger.debug('[BUPT-Handover Abandon Request] handover=' + handover + ' T=' + T + 's');
                                     if (handover === 0) {
                                         switchRequest.quality = newQuality;
                                         switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
                                         switchRequest.reason.fragmentID = fragmentInfo.id;
                                         abandonDict[fragmentInfo.id] = fragmentInfo;
-                                        logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                                        logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
                                         delete fragmentDict[mediaType][fragmentInfo.id];
+                                    } else {
+                                        logger.debug('[BUPT-Handover Abandon Forbid]');
                                     }
                                 },
                                 error: function (e) {
-                                    console.log('AJAX ERROR');
+                                    logger.debug('[BUPT AJAX] ERROR ABANDON');
                                     console.log(e.status);
                                     console.log(e.responseText);
+
+                                    switchRequest.quality = newQuality;
+                                    switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
+                                    switchRequest.reason.fragmentID = fragmentInfo.id;
+                                    abandonDict[fragmentInfo.id] = fragmentInfo;
+                                    logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                                    delete fragmentDict[mediaType][fragmentInfo.id];
                                 }
                             });
                         } else {
@@ -170,7 +181,7 @@ function AbandonRequestsRule(config) {
                             switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
                             switchRequest.reason.fragmentID = fragmentInfo.id;
                             abandonDict[fragmentInfo.id] = fragmentInfo;
-                            logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                            logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
                             delete fragmentDict[mediaType][fragmentInfo.id];
                         }
                     }
@@ -180,6 +191,7 @@ function AbandonRequestsRule(config) {
             }
         }
 
+        logger.debug("BUPT-Debug return!");
         last_time = new Date().getTime();
         return switchRequest;
     }

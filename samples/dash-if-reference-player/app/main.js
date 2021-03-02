@@ -38,7 +38,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     //    url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     //};
     $scope.selectedItem = {
-      url: 'http://124.70.77.209:9992/MicroSmooth/output/stream.mpd'
+      url: 'http://124.70.50.67:9992/MicroSmooth/output/stream.mpd'
     }
 
     sources.query(function (data) {
