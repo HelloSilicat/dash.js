@@ -31,7 +31,6 @@
 import SwitchRequest from '../SwitchRequest';
 import FactoryMaker from '../../../core/FactoryMaker';
 import Debug from '../../../core/Debug';
-import $ from 'jquery';
 
 function AbandonRequestsRule(config) {
 
@@ -39,7 +38,6 @@ function AbandonRequestsRule(config) {
     const ABANDON_MULTIPLIER = 1.8;
     const GRACE_TIME_THRESHOLD = 500;
     const MIN_LENGTH_TO_AVERAGE = 5;
-    const REQ = 50;
 
     const context = this.context;
     const mediaPlayerModel = config.mediaPlayerModel;
@@ -47,8 +45,6 @@ function AbandonRequestsRule(config) {
     const settings = config.settings;
 
     let instance,
-        last_time,
-        last_req_time,
         logger,
         fragmentDict,
         abandonDict,
@@ -56,8 +52,6 @@ function AbandonRequestsRule(config) {
 
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
-        last_time = new Date().getTime();
-        last_req_time = -(REQ + 1);
         reset();
     }
 
@@ -71,13 +65,11 @@ function AbandonRequestsRule(config) {
         throughputArray[type].push(throughput);
     }
 
-
     function shouldAbandon(rulesContext) {
         const switchRequest = SwitchRequest(context).create(SwitchRequest.NO_CHANGE, {name: AbandonRequestsRule.__dashjs_factory_name});
 
         if (!rulesContext || !rulesContext.hasOwnProperty('getMediaInfo') || !rulesContext.hasOwnProperty('getMediaType') || !rulesContext.hasOwnProperty('getCurrentRequest') ||
             !rulesContext.hasOwnProperty('getRepresentationInfo') || !rulesContext.hasOwnProperty('getAbrController')) {
-            last_time = new Date().getTime();
             return switchRequest;
         }
 
@@ -91,13 +83,11 @@ function AbandonRequestsRule(config) {
             const stableBufferTime = mediaPlayerModel.getStableBufferTime();
             const bufferLevel = dashMetrics.getCurrentBufferLevel(mediaType);
             if ( bufferLevel > stableBufferTime ) {
-                last_time = new Date().getTime();
                 return switchRequest;
             }
 
             const fragmentInfo = fragmentDict[mediaType][req.index];
             if (fragmentInfo === null || req.firstByteDate === null || abandonDict.hasOwnProperty(fragmentInfo.id)) {
-                last_time = new Date().getTime();
                 return switchRequest;
             }
 
@@ -125,7 +115,6 @@ function AbandonRequestsRule(config) {
                 fragmentInfo.estimatedTimeOfDownload = +((fragmentInfo.bytesTotal * 8 / fragmentInfo.measuredBandwidthInKbps) / 1000).toFixed(2);
 
                 if (fragmentInfo.estimatedTimeOfDownload < fragmentInfo.segmentDuration * ABANDON_MULTIPLIER || rulesContext.getRepresentationInfo().quality === 0 ) {
-                    last_time = new Date().getTime();
                     return switchRequest;
                 } else if (!abandonDict.hasOwnProperty(fragmentInfo.id)) {
 
@@ -136,54 +125,14 @@ function AbandonRequestsRule(config) {
                     const minQuality = abrController.getMinAllowedIndexFor(mediaType);
                     const newQuality = (minQuality !== undefined) ? Math.max(minQuality, quality) : quality;
                     const estimateOtherBytesTotal = fragmentInfo.bytesTotal * bitrateList[newQuality].bitrate / bitrateList[abrController.getQualityFor(mediaType)].bitrate;
-                    // logger.debug('BUPT-Handover Test');
-                    if (bytesRemaining > estimateOtherBytesTotal) {
-                        const T = (new Date().getTime() - last_time) / 1000 * 4;
-                        logger.debug('BUPT-Handover Abandon request!' + new Date().getTime() - last_req_time + ' ' + REQ);
-                        if (new Date().getTime() - last_req_time > REQ) {
-                            last_req_time = new Date().getTime();
-                            $.ajax({
-                                async: false,
-                                type: 'GET',
-                                contentType: 'application/json',
-                                dataType: 'JSON',
-                                url: 'http://0.0.0.0:8000/get_history_handover_info',
-                                data: {'time': T},
-                                success: function (data) {
-                                    const handover = data.handover;
-                                    logger.debug('[BUPT-Handover Abandon Request] handover=' + handover + ' T=' + T + 's');
-                                    if (handover === 0) {
-                                        switchRequest.quality = newQuality;
-                                        switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
-                                        switchRequest.reason.fragmentID = fragmentInfo.id;
-                                        abandonDict[fragmentInfo.id] = fragmentInfo;
-                                        logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
-                                        delete fragmentDict[mediaType][fragmentInfo.id];
-                                    } else {
-                                        logger.debug('[BUPT-Handover Abandon Forbid]');
-                                    }
-                                },
-                                error: function (e) {
-                                    logger.debug('[BUPT AJAX] ERROR ABANDON');
-                                    console.log(e.status);
-                                    console.log(e.responseText);
 
-                                    switchRequest.quality = newQuality;
-                                    switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
-                                    switchRequest.reason.fragmentID = fragmentInfo.id;
-                                    abandonDict[fragmentInfo.id] = fragmentInfo;
-                                    logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
-                                    delete fragmentDict[mediaType][fragmentInfo.id];
-                                }
-                            });
-                        } else {
-                            switchRequest.quality = newQuality;
-                            switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
-                            switchRequest.reason.fragmentID = fragmentInfo.id;
-                            abandonDict[fragmentInfo.id] = fragmentInfo;
-                            logger.debug('[BUPT-ABD][' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
-                            delete fragmentDict[mediaType][fragmentInfo.id];
-                        }
+                    if (bytesRemaining > estimateOtherBytesTotal) {
+                        switchRequest.quality = newQuality;
+                        switchRequest.reason.throughput = fragmentInfo.measuredBandwidthInKbps;
+                        switchRequest.reason.fragmentID = fragmentInfo.id;
+                        abandonDict[fragmentInfo.id] = fragmentInfo;
+                        logger.debug('[' + mediaType + '] frag id',fragmentInfo.id,' is asking to abandon and switch to quality to ', newQuality, ' measured bandwidth was', fragmentInfo.measuredBandwidthInKbps);
+                        delete fragmentDict[mediaType][fragmentInfo.id];
                     }
                 }
             } else if (fragmentInfo.bytesLoaded === fragmentInfo.bytesTotal) {
@@ -191,8 +140,6 @@ function AbandonRequestsRule(config) {
             }
         }
 
-        // logger.debug("BUPT-Debug return!");
-        last_time = new Date().getTime();
         return switchRequest;
     }
 
