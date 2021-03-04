@@ -136,7 +136,7 @@ function AbandonRequestsRule(config) {
                     const minQuality = abrController.getMinAllowedIndexFor(mediaType);
                     const newQuality = (minQuality !== undefined) ? Math.max(minQuality, quality) : quality;
                     const estimateOtherBytesTotal = fragmentInfo.bytesTotal * bitrateList[newQuality].bitrate / bitrateList[abrController.getQualityFor(mediaType)].bitrate;
-
+                    // logger.debug('BUPT-Handover Test');
                     if (bytesRemaining > estimateOtherBytesTotal) {
                         const T = (new Date().getTime() - last_time) / 1000 * 4;
                         logger.debug('BUPT-Handover Abandon request!' + new Date().getTime() - last_req_time + ' ' + REQ);
@@ -191,7 +191,7 @@ function AbandonRequestsRule(config) {
             }
         }
 
-        logger.debug("BUPT-Debug return!");
+        // logger.debug("BUPT-Debug return!");
         last_time = new Date().getTime();
         return switchRequest;
     }
