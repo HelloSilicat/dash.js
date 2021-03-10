@@ -198,7 +198,6 @@ function ABRRulesCollection(config) {
         const switchRequestArray = qualitySwitchRules.map(rule => rule.getMaxIndex(rulesContext));
         const activeRules = getActiveRules(switchRequestArray);
         const maxQuality = getMinSwitchRequest(activeRules, rulesContext.getRepresentationInfo().quality);
-        console.log('[' + new Date().getTime() + '][BUPT-Handover Result] Maxquality=' + maxQuality ? maxQuality.quality : -1);
         last_time = new Date().getTime();
 
         // For BUPT Trace
