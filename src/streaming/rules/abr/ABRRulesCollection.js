@@ -53,6 +53,7 @@ function ABRRulesCollection(config) {
     let instance,
         last_time,
         last_quality,
+        globalBufferLevel,
         qualitySwitchRules,
         abandonFragmentRules;
 
@@ -154,9 +155,9 @@ function ABRRulesCollection(config) {
         if (last_quality == -1) {
             last_quality = oldValue;
         }
-        console.log('[' + new Date().getTime() + '][BUPT-Handover Abr Raw] Last Quality:', last_quality, ' New Quality:', quality);
+        console.log('[' + new Date().getTime() + '][BUPT-Handover Abr Raw] GlobalBufferLevel: ' + globalBufferLevel + ' Last Quality:' + last_quality +  ' New Quality:' +  quality);
         if (last_quality != -1) {
-            if (quality < last_quality) {
+            if (quality < last_quality && globalBufferLevel > 5) {
                 const T = (new Date().getTime() - last_time) / 1000;
                 $.ajax ({
                     async: false,
@@ -197,6 +198,16 @@ function ABRRulesCollection(config) {
     function getMaxQuality(rulesContext) {
         const switchRequestArray = qualitySwitchRules.map(rule => rule.getMaxIndex(rulesContext));
         const activeRules = getActiveRules(switchRequestArray);
+
+        globalBufferLevel = 60;
+        if (switchRequestArray && switchRequestArray.length == 4) {
+            if (switchRequestArray[0] && switchRequestArray[0].hasOwnProperty('reason') && switchRequestArray[0].reason && switchRequestArray[0].reason.hasOwnProperty('bufferLevel')) {
+                globalBufferLevel = switchRequestArray[0].reason.bufferLevel;
+            } else if (switchRequestArray[1] && switchRequestArray[1].hasOwnProperty('reason') && switchRequestArray[1].reason && switchRequestArray[1].reason.hasOwnProperty('bufferLevel')) {
+                globalBufferLevel = switchRequestArray[1].reason.bufferLevel;
+            }
+        }
+
         const maxQuality = getMinSwitchRequest(activeRules, rulesContext.getRepresentationInfo().quality);
         last_time = new Date().getTime();
 
